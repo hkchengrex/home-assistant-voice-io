@@ -42,7 +42,9 @@ def _reference_dtw_distance(
                 (previous_cost[column - 1], previous_steps[column - 1]),
             )
             best_cost, best_steps = min(candidates, key=lambda item: item[0])
-            local = float(np.linalg.norm(first[row - 1] - second[column - 1]))
+            local = float(
+                np.float32(np.linalg.norm(first[row - 1] - second[column - 1]))
+            )
             current_cost[column] = best_cost + local
             current_steps[column] = best_steps + 1
         previous_cost, previous_steps = current_cost, current_steps

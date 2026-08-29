@@ -85,15 +85,18 @@ def dtw_distance(first: np.ndarray, second: np.ndarray, band_ratio: float = 0.25
     # Compute all frame-to-frame distances in one NumPy operation. Calling
     # np.linalg.norm for every DTW cell is especially expensive on low-power
     # low-power target machines.
-    local_distances = np.linalg.norm(
-        first[:, np.newaxis, :] - second[np.newaxis, :, :], axis=2
+    # Keep one canonical distance representation for the native and portable
+    # backends. This avoids backend-dependent scores when NumPy promotes caller
+    # inputs to float64, while retaining the matcher’s compact float32 working
+    # set on low-memory devices.
+    local_distances = np.ascontiguousarray(
+        np.linalg.norm(
+            first[:, np.newaxis, :] - second[np.newaxis, :, :], axis=2
+        ),
+        dtype=np.float32,
     )
     if _native_accumulate_distance is not None:
-        # The optional extension deliberately has a narrow float32 ABI. NumPy
-        # promotes mixed and float64 feature inputs, and sliced arrays are not
-        # guaranteed to be contiguous, so normalize at the extension boundary.
-        native_distances = np.ascontiguousarray(local_distances, dtype=np.float32)
-        return float(_native_accumulate_distance(native_distances, band))
+        return float(_native_accumulate_distance(local_distances, band))
 
     previous_cost = np.full(columns + 1, np.inf, dtype=np.float64)
     previous_steps = np.zeros(columns + 1, dtype=np.int32)
