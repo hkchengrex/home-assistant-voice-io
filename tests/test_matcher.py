@@ -1,7 +1,9 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 
+import ha_voice.matcher as matcher
 from ha_voice.matcher import (
     Template,
     classify,
@@ -94,8 +96,11 @@ def test_native_dtw_backend_when_built() -> None:
     rows, columns = first.shape[0], second.shape[0]
     band_ratio = 0.25
     band = max(abs(rows - columns), int(max(rows, columns) * band_ratio), 2)
-    local_distances = np.linalg.norm(
-        first[:, np.newaxis, :] - second[np.newaxis, :, :], axis=2
+    local_distances = np.ascontiguousarray(
+        np.linalg.norm(
+            first[:, np.newaxis, :] - second[np.newaxis, :, :], axis=2
+        ),
+        dtype=np.float32,
     )
     assert np.isclose(
         accumulate_distance(local_distances, band),
@@ -103,6 +108,25 @@ def test_native_dtw_backend_when_built() -> None:
         rtol=1e-12,
         atol=1e-12,
     )
+
+
+def test_dtw_normalizes_native_input_to_contiguous_float32(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    received: list[np.ndarray] = []
+
+    def fake_native(distances: np.ndarray, band: int) -> float:
+        received.append(distances)
+        return 1.25
+
+    monkeypatch.setattr(matcher, "_native_accumulate_distance", fake_native)
+    first = np.arange(24, dtype=np.float64).reshape(8, 3)[::2]
+    second = np.arange(30, dtype=np.float64).reshape(10, 3)[::2]
+
+    assert matcher.dtw_distance(first, second) == 1.25
+    assert len(received) == 1
+    assert received[0].dtype == np.float32
+    assert received[0].flags.c_contiguous
 
 
 def test_classify_selects_nearest_command() -> None:
