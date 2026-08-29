@@ -1,0 +1,4 @@
+include commands.toml
+include CONTRIBUTING.md
+include SECURITY.md
+recursive-include deploy *

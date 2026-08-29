@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "local-voice-pipeline"
+version = "0.1.0"
+description = "Offline template-based voice recognition, training, and deployment"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Rex Cheng" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = ["numpy>=1.26,<3"]
+
+[project.optional-dependencies]
+capture = ["sounddevice>=0.5,<1"]
+dev = ["build>=1,<2", "pytest>=8,<9", "sounddevice>=0.5,<1"]
+
+[project.scripts]
+local-voice = "ha_voice.cli:main"
+ha-voice = "ha_voice.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ha_voice = ["studio/*.html", "studio/*.css", "studio/*.js"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

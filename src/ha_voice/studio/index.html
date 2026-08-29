@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#edf1ee">
+    <title>Voiceprint Studio</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="brand" href="/" aria-label="Voiceprint Studio home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span>Voiceprint</span>
+      </a>
+      <p class="masthead-note">Private command training</p>
+      <div class="local-badge"><span></span> Stored on this computer</div>
+    </header>
+
+    <div class="studio-shell">
+      <aside class="command-rail" aria-label="Command training progress">
+        <div class="rail-heading">
+          <p class="eyebrow">Training set</p>
+          <p id="total-progress" class="rail-total">0 of 0 samples</p>
+        </div>
+        <button id="add-command-button" class="add-command-button" type="button" hidden>
+          <span aria-hidden="true">＋</span> New command
+        </button>
+        <nav id="command-list" class="command-list"></nav>
+        <button id="test-button" class="test-button" type="button">
+          <span class="test-pulse" aria-hidden="true"></span>
+          One-off test
+        </button>
+        <button id="continuous-button" class="continuous-button" type="button" aria-pressed="false">
+          <span class="continuous-pulse" aria-hidden="true"></span>
+          <span id="continuous-label">Start continuous</span>
+        </button>
+        <p id="continuous-hint" class="continuous-hint">Listens only while this studio page is open. Pause briefly between commands.</p>
+        <p class="rail-footnote">Single takes wait for review. Batch takes save automatically after each cue.</p>
+      </aside>
+
+      <main class="workbench">
+        <section class="phrase-header" aria-labelledby="phrase">
+          <div>
+            <p id="sample-label" class="eyebrow">Sample 1 of 10</p>
+            <h1 id="phrase">Choose a command</h1>
+            <p id="description" class="phrase-description">Loading your training set…</p>
+          </div>
+          <div class="session-readout" aria-label="Current recording status">
+            <span id="session-dot" class="session-dot"></span>
+            <span id="session-status">Getting ready</span>
+          </div>
+        </section>
+
+        <section id="listening-lane" class="listening-lane" data-mode="idle" aria-label="Audio recorder">
+          <div class="lane-labels" aria-hidden="true">
+            <span>input</span>
+            <span>voice window</span>
+            <span id="capture-window">3.0 sec</span>
+          </div>
+          <div class="wave-stage">
+            <canvas id="waveform" aria-label="Live microphone waveform"></canvas>
+            <div class="lane-playhead" aria-hidden="true"></div>
+          </div>
+          <div class="lane-controls">
+            <div class="record-actions">
+              <button id="record-button" class="record-button" type="button" disabled>
+                <span class="record-glyph" aria-hidden="true"></span>
+                <span id="record-label">Loading microphones</span>
+              </button>
+              <button id="batch-button" class="batch-button" type="button" disabled>
+                Record a set…
+              </button>
+            </div>
+            <div class="level-block">
+              <span class="utility-label">Level</span>
+              <div class="level-track" aria-hidden="true"><i id="level-fill"></i></div>
+              <span id="level-value" class="level-value">—</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="review-panel" class="review-panel" hidden aria-label="Review recording">
+          <div class="review-copy">
+            <p class="eyebrow">Review this take</p>
+            <p>Listen once. Keep natural speech; retry clipped, distant, or interrupted takes.</p>
+          </div>
+          <audio id="playback" controls></audio>
+          <div class="review-actions">
+            <button id="retry-button" class="secondary-button" type="button">Retry</button>
+            <button id="keep-button" class="primary-button" type="button">Keep recording</button>
+          </div>
+        </section>
+
+        <section id="saved-takes" class="saved-takes" aria-label="Saved recording playback">
+          <div class="saved-copy">
+            <p class="eyebrow">Saved takes</p>
+            <p id="saved-summary">Loading local recordings…</p>
+            <button id="delete-command-button" class="quiet-danger" type="button" hidden>Remove this command</button>
+          </div>
+          <label class="take-field">
+            <span class="sr-only">Saved recording</span>
+            <select id="saved-select" aria-label="Saved recording" disabled>
+              <option>Loading…</option>
+            </select>
+          </label>
+          <div class="saved-actions">
+            <audio id="saved-playback" controls preload="metadata" hidden></audio>
+            <div class="take-buttons">
+              <button id="replace-take-button" class="secondary-button" type="button" disabled>Replace take</button>
+              <button id="delete-take-button" class="danger-button" type="button" disabled>Remove take</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="trigger-review" class="trigger-review" aria-labelledby="trigger-review-title">
+          <div class="trigger-review-heading">
+            <div>
+              <p class="eyebrow">Recognition inbox</p>
+              <h2 id="trigger-review-title">Recent triggers</h2>
+              <p id="trigger-review-summary">Loading the rolling review queue…</p>
+            </div>
+            <button id="refresh-triggers-button" class="secondary-button" type="button">Refresh</button>
+          </div>
+          <div id="trigger-review-list" class="trigger-review-list" aria-live="polite"></div>
+        </section>
+
+        <section class="input-strip" aria-label="Microphone setup">
+          <div class="input-copy">
+            <p class="eyebrow">Microphone</p>
+            <p id="mic-help">Captured by the local studio service—no browser permission required.</p>
+          </div>
+          <label class="device-field">
+            <span class="sr-only">Microphone device</span>
+            <select id="device-select" disabled>
+              <option>Looking for microphones…</option>
+            </select>
+          </label>
+          <div class="input-actions">
+            <button id="compare-mics-button" class="secondary-button" type="button" disabled>Compare microphones</button>
+            <button id="enable-button" class="outline-button" type="button">Refresh devices</button>
+          </div>
+        </section>
+
+        <div class="footer-line">
+          <p id="message" role="status" aria-live="polite">The studio is loading.</p>
+          <p class="shortcuts"><kbd>Space</kbd> record · <kbd>R</kbd> retry · <kbd>Enter</kbd> keep</p>
+        </div>
+      </main>
+    </div>
+
+    <dialog id="new-command-dialog" class="command-dialog">
+      <form id="new-command-form">
+        <div class="dialog-heading">
+          <p class="eyebrow">Grow the library</p>
+          <h2>Add a command</h2>
+          <p>Create the phrase first, then record examples from the places where you will actually speak it.</p>
+        </div>
+        <label class="dialog-field">
+          <span>What will you say?</span>
+          <input id="new-command-utterance" name="utterance" maxlength="100" required autocomplete="off" placeholder="Coffee time">
+        </label>
+        <label class="dialog-field">
+          <span>What should it mean? <small>Optional</small></span>
+          <input id="new-command-description" name="description" maxlength="240" autocomplete="off" placeholder="Start the morning coffee routine">
+        </label>
+        <label class="dialog-field compact-field">
+          <span>Recording goal</span>
+          <input id="new-command-target" name="target_samples" type="number" min="1" max="100" value="10" required>
+        </label>
+        <div class="dialog-actions">
+          <button id="cancel-command-button" class="secondary-button" type="button">Cancel</button>
+          <button class="primary-button" type="submit">Add command</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="batch-dialog" class="batch-dialog">
+      <div class="batch-shell">
+        <section id="batch-setup" class="batch-setup">
+          <div class="dialog-heading">
+            <p class="eyebrow">Hands-free recording</p>
+            <h2>Record a full set</h2>
+            <p>A chime starts every take. Speak right after it; each three-second recording is saved automatically.</p>
+          </div>
+          <div class="batch-phrase-card">
+            <span>Repeat each time</span>
+            <strong id="batch-setup-phrase">Choose a command</strong>
+            <small id="batch-device-name">Choose a microphone first</small>
+          </div>
+          <label class="dialog-field compact-field">
+            <span>Number of recordings</span>
+            <input id="batch-count" type="number" min="1" max="50" value="10" required inputmode="numeric">
+          </label>
+          <p class="batch-note"><strong>Listen for the chime.</strong> There is no countdown. After three seconds, the take saves and the next cue follows automatically.</p>
+          <div class="dialog-actions">
+            <button id="cancel-batch-button" class="secondary-button" type="button">Cancel</button>
+            <button id="start-batch-button" class="primary-button" type="button">Start recording set</button>
+          </div>
+        </section>
+
+        <section id="batch-run" class="batch-run" hidden aria-live="polite">
+          <div class="batch-counter">
+            <p id="batch-progress" class="eyebrow">Take 1 of 10</p>
+            <span id="batch-saved-count">0 saved</span>
+          </div>
+          <div id="batch-cue" class="batch-cue" data-state="ready">
+            <span class="batch-cue-ring" aria-hidden="true"><i></i></span>
+            <p id="batch-status">Listen for the chime, then speak</p>
+            <strong id="batch-prompt">Choose a command</strong>
+          </div>
+          <div class="batch-progress-track" aria-hidden="true"><i id="batch-progress-fill"></i></div>
+          <p id="batch-detail" class="batch-detail">Every take is saved before the next one begins.</p>
+          <div class="dialog-actions batch-actions">
+            <button id="retry-batch-button" class="secondary-button" type="button" hidden>Retry this take</button>
+            <button id="stop-batch-button" class="secondary-button" type="button">Stop after this take</button>
+            <button id="done-batch-button" class="primary-button" type="button" hidden>Done</button>
+          </div>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog id="mic-compare-dialog" class="mic-compare-dialog">
+      <div class="compare-shell">
+        <div class="compare-heading">
+          <div>
+            <p class="eyebrow">Paired listening test</p>
+            <h2>Hear the microphones, side by side</h2>
+            <p>Record the same phrase from the same place. The clips stay in this window and never join the training library.</p>
+          </div>
+          <button id="close-compare-button" class="dialog-close" type="button" aria-label="Close microphone comparison">×</button>
+        </div>
+
+        <section id="compare-setup" class="compare-setup" aria-label="Comparison setup">
+          <div class="compare-device-grid">
+            <label class="compare-device-field channel-a">
+              <span><i>A</i> First microphone</span>
+              <select id="compare-device-a"></select>
+            </label>
+            <label class="compare-device-field channel-b">
+              <span><i>B</i> Second microphone</span>
+              <select id="compare-device-b"></select>
+            </label>
+          </div>
+          <div class="compare-test-grid">
+            <label class="dialog-field">
+              <span>Phrase to repeat</span>
+              <input id="compare-phrase" maxlength="100" value="Start phrase" autocomplete="off">
+            </label>
+            <label class="dialog-field compact-field">
+              <span>Pairs</span>
+              <select id="compare-pair-count">
+                <option value="1">1 quick pair</option>
+                <option value="3" selected>3 pairs</option>
+                <option value="5">5 pairs</option>
+              </select>
+            </label>
+          </div>
+          <p class="compare-note"><strong>Keep your position fixed.</strong> The test alternates A then B, records three untouched seconds, and lets you replay every pair.</p>
+          <div class="dialog-actions">
+            <button id="cancel-compare-button" class="secondary-button" type="button">Cancel</button>
+            <button id="start-compare-button" class="primary-button" type="button">Start paired test</button>
+          </div>
+        </section>
+
+        <section id="compare-run" class="compare-run" aria-label="Microphone comparison" hidden>
+          <div class="compare-prompt">
+            <div>
+              <p id="compare-progress" class="eyebrow">Pair 1 of 3 · microphone A</p>
+              <p class="compare-say-label">Say exactly</p>
+              <p id="compare-prompt-text" class="compare-prompt-text">Start phrase</p>
+            </div>
+            <button id="record-compare-button" class="compare-record-button" type="button">
+              <span class="record-glyph" aria-hidden="true"></span>
+              <span id="record-compare-label">Record microphone A</span>
+            </button>
+          </div>
+
+          <div class="compare-channels">
+            <article class="compare-channel channel-a" aria-labelledby="compare-name-a">
+              <header><span class="channel-letter">A</span><h3 id="compare-name-a">First microphone</h3></header>
+              <div id="compare-summary-a" class="compare-summary">No takes yet</div>
+              <div id="compare-takes-a" class="compare-takes"></div>
+            </article>
+            <article class="compare-channel channel-b" aria-labelledby="compare-name-b">
+              <header><span class="channel-letter">B</span><h3 id="compare-name-b">Second microphone</h3></header>
+              <div id="compare-summary-b" class="compare-summary">No takes yet</div>
+              <div id="compare-takes-b" class="compare-takes"></div>
+            </article>
+          </div>
+
+          <p id="compare-verdict" class="compare-verdict" role="status" aria-live="polite">Record both sides of the first pair, then listen back.</p>
+          <div class="dialog-actions compare-actions">
+            <button id="restart-compare-button" class="secondary-button" type="button">Start over</button>
+            <button id="finish-compare-button" class="primary-button" type="button">Done</button>
+          </div>
+        </section>
+      </div>
+    </dialog>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

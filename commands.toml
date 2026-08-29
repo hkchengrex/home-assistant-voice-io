@@ -1,0 +1,87 @@
+[recognizer]
+sample_rate = 16000
+max_distance = 3.6
+min_margin = 0.03
+top_k = 2
+
+[calibration]
+description = "Say a different unrelated phrase each time"
+utterance = "Anything except the configured commands"
+target_samples = 10
+
+[responses]
+start = "starting"
+welcome = "welcome"
+morning = "morning"
+lights_on = "lights_on"
+lights_off = "lights_off"
+bye = "bye"
+good_night = "good_night"
+nothing = "nothing"
+
+[control_events]
+"/welcome" = "welcome"
+"/morning" = "morning"
+
+[start_phrase]
+enabled = true
+description = "Wake the listener before it accepts one command"
+utterance = "Start phrase"
+target_samples = 15
+max_distance = 3.6
+min_margin = 0.04
+top_k = 3
+command_timeout_seconds = 3.0
+min_audio_seconds = 0.56
+max_audio_seconds = 1.35
+min_command_audio_seconds = 0.42
+response = "start"
+
+[commands.lights_on]
+description = "First wording for the lights-on intent"
+utterance = "Lights on"
+target_samples = 10
+intent_group = "day_lighting"
+response = "lights_on"
+
+[commands.lights_off]
+description = "First wording for the lights-off intent"
+utterance = "Lights off (original language)"
+target_samples = 10
+intent_group = "all_lights_off"
+response = "lights_off"
+
+[commands.good_night]
+description = "Bedtime intent"
+utterance = "Good night"
+target_samples = 10
+intent_group = "night_lighting"
+response = "good_night"
+
+[commands.day_routine]
+description = "Alternative wording for the lights-on intent"
+utterance = "Lights on (original language)"
+target_samples = 10
+intent_group = "day_lighting"
+response = "lights_on"
+
+[commands.byebye]
+description = "Alternative wording for the lights-off intent"
+utterance = "byebye"
+target_samples = 10
+intent_group = "all_lights_off"
+response = "bye"
+
+[commands.byebye_native]
+description = "Another wording for the lights-off intent"
+utterance = "byebye (native)"
+target_samples = 10
+intent_group = "all_lights_off"
+response = "bye"
+
+[commands.nothing]
+description = "Play a response without an external action"
+utterance = "Nothing"
+target_samples = 10
+intent_group = "nothing"
+response = "nothing"
