@@ -6,6 +6,20 @@ and dynamic time warping, provides a browser-based training studio, and can run
 an always-on start-phrase listener. It does not transcribe speech or require a
 cloud service.
 
+## What it does
+
+- Teach it custom voice commands by recording examples.
+- Recognize those commands locally without sending audio to the cloud.
+- Use a wake phrase before commands.
+- Manage and test commands in a browser-based training studio.
+- Connect recognized commands to Home Assistant or another system.
+- Play spoken or audio responses.
+- Run continuously on Windows, macOS, or Linux.
+- Review failed recognitions and improve the training set.
+
+It recognizes phrases you train; it is not general speech-to-text or an
+open-ended voice assistant.
+
 The library is automation-neutral. Applications attach a `CommandHandler` to
 accepted intent names; response groups and local control events are declared in
 TOML. A separate deployment can therefore connect the same recognizer to Home
@@ -18,6 +32,27 @@ capture uses PortAudio through the optional `sounddevice` dependency. Matching
 and WAV-file workflows require only NumPy. An optional C acceleration module is
 built when a supported compiler is available; the NumPy implementation remains
 the portable fallback.
+
+## Benchmark
+
+The reference low-power deployment is a first-generation Microsoft Surface Go
+with an Intel Pentium Gold 4415Y at 1.60 GHz (2 cores / 4 threads), running the
+native matcher on Python 3.12.
+
+- **Recognition response:** 86.9 ms median and 91.9 ms p95 over 100 measured
+  runs.
+- **Workload:** one 0.72-second recorded command matched against 123 templates,
+  after 10 warm-up runs.
+- **Measured work:** silence trimming, feature extraction, DTW matching, and
+  command classification after captured audio is available. Microphone capture,
+  response playback, and external automation latency are excluded.
+- **Live observation:** the two most recent successful commands in the running
+  deployment reached the Home Assistant action in 150–190 ms after the detected
+  command ended (170 ms median). This is a small operational sample, not the
+  controlled benchmark above.
+
+Results will vary with phrase length, template count, selected backend, system
+load, and external automation latency.
 
 ## Install
 
