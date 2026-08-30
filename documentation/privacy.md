@@ -12,6 +12,8 @@ Local Voice Pipeline processes recordings on the machine where it runs. The libr
 
 The integration you attach may communicate with another system. Review that adapter separately; the core recognizer does not make an external action by itself.
 
+The optional OmniVoice response generator is a deliberate exception to local-only processing: it uploads the reference voice and requested response text to the selected Hugging Face Space. It requires explicit upload consent on every API call. This does not change the local recognition path.
+
 ## Treat recordings as personal data
 
 A voice recording can identify or reveal information about a person. Store the data folder privately, restrict access to the service user, and include recordings only in encrypted or otherwise protected backups.

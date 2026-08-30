@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import os
 from pathlib import Path
 import sys
 import time
@@ -27,6 +28,13 @@ from .matcher import (
 from .responses import VoiceResponsePlayer
 from .services import SystemdUserServiceManager
 from .start_phrase import StartPhraseGate
+from .voice_generation import (
+    DEFAULT_API_NAME,
+    DEFAULT_SPACE_ID,
+    CloneSettings,
+    HuggingFaceSpaceVoiceCloner,
+    VoiceGenerationError,
+)
 
 
 def _project_path(value: str) -> Path:
@@ -66,6 +74,40 @@ def _parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("templates", help="show template counts")
     subparsers.add_parser("calibrate", help="measure genuine/impostor separation")
+
+    clone = subparsers.add_parser(
+        "clone-response",
+        help="generate a private response clip with a Hugging Face Space",
+    )
+    clone.add_argument("--response", required=True, help="configured response group")
+    clone.add_argument("--text", required=True, help="text spoken in the new clip")
+    clone.add_argument("--reference", type=_project_path, required=True)
+    clone.add_argument("--reference-text", default="")
+    clone.add_argument("--language", default="Auto")
+    clone.add_argument("--instruct", default="")
+    clone.add_argument("--steps", type=int, default=32)
+    clone.add_argument("--guidance-scale", type=float, default=2.0)
+    clone.add_argument("--speed", type=float, default=1.0)
+    clone.add_argument("--duration", type=float, default=None)
+    clone.add_argument("--assets", type=_project_path, default=Path("assets"))
+    clone.add_argument("--space", default=DEFAULT_SPACE_ID)
+    clone.add_argument("--api-name", default=DEFAULT_API_NAME)
+    clone.add_argument(
+        "--attempts",
+        type=int,
+        default=2,
+        help="total attempts for transient ZeroGPU or connection failures",
+    )
+    clone.add_argument(
+        "--token-env",
+        default="HF_TOKEN",
+        help="environment variable containing an optional Hugging Face token",
+    )
+    clone.add_argument(
+        "--confirm-upload",
+        action="store_true",
+        help="confirm that the reference voice may be uploaded to the Space",
+    )
 
     studio = subparsers.add_parser("studio", help="open the local recording studio")
     studio.add_argument("--host", default="127.0.0.1")
@@ -523,6 +565,51 @@ def main(
         return
 
     config = _load_app_config(config_path)
+
+    if args.subcommand == "clone-response":
+        if not args.confirm_upload:
+            raise SystemExit(
+                "Add --confirm-upload after confirming the reference voice may be "
+                "sent to the Hugging Face Space."
+            )
+        response_prefix = config.responses.get(args.response)
+        if response_prefix is None:
+            choices = ", ".join(sorted(config.responses)) or "none configured"
+            raise SystemExit(
+                f"Unknown response group '{args.response}'. Choose: {choices}"
+            )
+        token = os.environ.get(args.token_env) if args.token_env else None
+        try:
+            cloner = HuggingFaceSpaceVoiceCloner(
+                space_id=args.space,
+                api_name=args.api_name,
+                token=token,
+                max_attempts=args.attempts,
+            )
+            result = cloner.clone_to_library(
+                text=args.text,
+                reference_audio=args.reference,
+                assets_dir=args.assets,
+                response_prefix=response_prefix,
+                settings=CloneSettings(
+                    language=args.language,
+                    reference_text=args.reference_text,
+                    instruct=args.instruct,
+                    inference_steps=args.steps,
+                    guidance_scale=args.guidance_scale,
+                    speed=args.speed,
+                    duration=args.duration,
+                ),
+                consent_to_upload=args.confirm_upload,
+            )
+        except (ValueError, VoiceGenerationError) as exc:
+            raise SystemExit(str(exc)) from exc
+        print(f"Generated private source: {result.source_path}")
+        print(
+            f"Published {len(result.published)} clip(s) for response "
+            f"'{args.response}'."
+        )
+        return
 
     if args.subcommand == "run":
         _run_continuously(

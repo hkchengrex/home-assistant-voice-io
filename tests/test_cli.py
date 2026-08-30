@@ -208,6 +208,31 @@ def test_run_parser_supports_direct_command_testing() -> None:
     assert args.capture_count == 5
 
 
+def test_parser_supports_hugging_face_response_cloning() -> None:
+    args = _parser().parse_args(
+        [
+            "clone-response",
+            "--response",
+            "welcome",
+            "--text",
+            "Welcome home",
+            "--reference",
+            "reference.wav",
+            "--language",
+            "English",
+            "--confirm-upload",
+        ]
+    )
+
+    assert args.response == "welcome"
+    assert args.language == "English"
+    assert args.space == "hkchengrex/OmniVoice"
+    assert args.api_name == "/_clone_fn"
+    assert args.token_env == "HF_TOKEN"
+    assert args.attempts == 2
+    assert args.confirm_upload is True
+
+
 def test_save_training_sample_writes_listener_audio(tmp_path: Path) -> None:
     samples = np.linspace(-0.2, 0.2, 1600, dtype=np.float32)
 

@@ -9,9 +9,6 @@ cloud service.
 **[Read the documentation](https://hkchengrex.com/home-assistant-voice-io/)**
 for the guided setup, training, integration, and deployment guides.
 
-**[Read the documentation](https://hkchengrex.github.io/home-assistant-voice-io/)**
-for the guided setup, training, integration, and deployment guides.
-
 ## What it does
 
 - Teach it custom voice commands by recording examples.
@@ -20,6 +17,7 @@ for the guided setup, training, integration, and deployment guides.
 - Manage and test commands in a browser-based training studio.
 - Connect recognized commands to Home Assistant or another system.
 - Play spoken or audio responses.
+- Generate cloned response clips through the optional OmniVoice Space client.
 - Run continuously on Windows, macOS, or Linux.
 - Review failed recognitions and improve the training set.
 
@@ -66,6 +64,12 @@ load, and external automation latency.
 python -m pip install "local-voice-pipeline[capture]"
 ```
 
+Add the optional Hugging Face client when generating cloned response audio:
+
+```shell
+python -m pip install "local-voice-pipeline[capture,voice-clone]"
+```
+
 For development:
 
 ```shell
@@ -101,6 +105,25 @@ The CLI performs recognition and local responses but intentionally has no
 external action implementation. Applications call `ha_voice.cli.main` with a
 `CommandHandler`, or use the lower-level audio, matcher, listener, and Studio
 APIs directly.
+
+## Generate response audio
+
+The optional OmniVoice integration can clone a response from a short reference
+recording and publish it into an existing response group:
+
+```shell
+local-voice --config voice-data/commands.toml clone-response \
+  --response welcome \
+  --text "Welcome home" \
+  --reference voice-data/reference.wav \
+  --assets voice-data/assets \
+  --confirm-upload
+```
+
+The reference recording is uploaded to the configured Hugging Face Space. The
+default `hkchengrex/OmniVoice` Space is currently public and does not require a
+token. If authentication is enabled later, set `HF_TOKEN` in the environment;
+the token is never stored in the voice configuration.
 
 ## Configuration boundary
 

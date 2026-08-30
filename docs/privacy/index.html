@@ -596,6 +596,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../response-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generate response audio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../configuration/" class="md-nav__link">
         
   
@@ -1048,6 +1076,7 @@
 <li>Your command configuration</li>
 </ul>
 <p>The integration you attach may communicate with another system. Review that adapter separately; the core recognizer does not make an external action by itself.</p>
+<p>The optional OmniVoice response generator is a deliberate exception to local-only processing: it uploads the reference voice and requested response text to the selected Hugging Face Space. It requires explicit upload consent on every API call. This does not change the local recognition path.</p>
 <h2 id="treat-recordings-as-personal-data">Treat recordings as personal data</h2>
 <p>A voice recording can identify or reveal information about a person. Store the data folder privately, restrict access to the service user, and include recordings only in encrypted or otherwise protected backups.</p>
 <p>Do not commit real household recordings, private response assets, automation tokens, entity IDs, or local hostnames to a public repository. Public tests should synthesize audio or use recordings with clear redistribution permission.</p>

@@ -42,6 +42,7 @@ nav:
       - Run continuously: running.md
   - Use it:
       - Connect an automation: integrations.md
+      - Generate response audio: response-generation.md
       - Configuration: configuration.md
       - Deploy on your platform: deployment.md
   - Reference:

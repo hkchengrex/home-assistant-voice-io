@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://hkchengrex.com/home-assistant-voice-io/training-studio/">
+        <link rel="canonical" href="https://hkchengrex.com/home-assistant-voice-io/response-generation/">
       
       
-        <link rel="prev" href="../getting-started/">
+        <link rel="prev" href="../integrations/">
       
       
-        <link rel="next" href="../running/">
+        <link rel="next" href="../configuration/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Training Studio - Local Voice Pipeline</title>
+        <title>Generate response audio - Local Voice Pipeline</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#training-studio" class="md-skip">
+        <a href="#generate-response-audio" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Training Studio
+              Generate response audio
             
           </span>
         </div>
@@ -238,12 +238,10 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../getting-started/" class="md-tabs__link">
           
   
@@ -260,10 +258,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../integrations/" class="md-tabs__link">
           
   
@@ -372,31 +372,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -414,7 +409,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -457,37 +452,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Training Studio
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../training-studio/" class="md-nav__link">
         
   
   
@@ -503,81 +471,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#build-a-useful-recording-set" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build a useful recording set
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#add-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Add commands
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#test-without-triggering-actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test without triggering actions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compare-microphones" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compare microphones
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#review-false-triggers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Review false triggers
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -622,26 +515,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -659,7 +557,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -702,10 +600,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../response-generation/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generate response audio
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -721,6 +646,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install-the-optional-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install the optional client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prepare-the-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prepare the reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-one-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate one response
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quality-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1015,10 +1026,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#build-a-useful-recording-set" class="md-nav__link">
+  <a href="#install-the-optional-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build a useful recording set
+        Install the optional client
       
     </span>
   </a>
@@ -1026,10 +1037,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#add-commands" class="md-nav__link">
+  <a href="#prepare-the-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Add commands
+        Prepare the reference
       
     </span>
   </a>
@@ -1037,10 +1048,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#test-without-triggering-actions" class="md-nav__link">
+  <a href="#generate-one-response" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test without triggering actions
+        Generate one response
       
     </span>
   </a>
@@ -1048,10 +1059,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#compare-microphones" class="md-nav__link">
+  <a href="#authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compare microphones
+        Authentication
       
     </span>
   </a>
@@ -1059,10 +1070,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#review-false-triggers" class="md-nav__link">
+  <a href="#python-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Review false triggers
+        Python API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quality-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality controls
       
     </span>
   </a>
@@ -1089,35 +1111,90 @@
   
 
 
-<h1 id="training-studio">Training Studio</h1>
-<p>The Studio is a local browser interface for building and improving a voice library. It runs on your machine; it is not a hosted recording service.</p>
-<p>Start it with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>local-voice<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>voice-data/recordings<span class="w"> </span>studio
-</code></pre></div>
-<p>Then open <code>http://127.0.0.1:8765</code>.</p>
-<h2 id="build-a-useful-recording-set">Build a useful recording set</h2>
-<p>Choose a command from the left side, select your microphone, and record examples. You can keep or retry each take, replay saved takes, replace weak recordings, and remove mistakes.</p>
-<p>For hands-free collection, choose <strong>Record a full set</strong>. A chime starts each take and the Studio saves it automatically.</p>
-<p>Good training examples include normal variation:</p>
-<ul>
-<li>Stand where you will actually use the command.</li>
-<li>Vary your distance and speaking pace a little.</li>
-<li>Include normal room noise, but avoid clipping or very low volume.</li>
-<li>Start with about 10 recordings per command and 15 for the wake phrase.</li>
-</ul>
-<h2 id="add-commands">Add commands</h2>
-<p>Choose <strong>Add command</strong>, then provide a stable command name, the phrase to display, and a short description. The Studio adds it to your private <code>commands.toml</code> and creates its recording set.</p>
-<p>Use <code>intent_group</code> when two different spoken phrases should trigger the same logical action. That keeps aliases from competing against each other during acceptance.</p>
-<h2 id="test-without-triggering-actions">Test without triggering actions</h2>
-<p><strong>One-off test</strong> records and classifies one phrase. <strong>Start continuous</strong> listens repeatedly. Both Studio test modes deliberately avoid sending external actions, so you can evaluate recognition safely.</p>
-<h2 id="compare-microphones">Compare microphones</h2>
-<p><strong>Compare microphones</strong> alternates between two input devices while you hold the same position. Replay each pair and choose the device with clearer, more consistent speech—not simply the loudest signal.</p>
-<h2 id="review-false-triggers">Review false triggers</h2>
-<p>In wake-phrase mode, the listener keeps a bounded set of recent accepted triggers. The Studio lets you replay them, dismiss expected results, or promote false triggers into negative examples. Those examples help the recognizer reject similar sounds in the future.</p>
+<h1 id="generate-response-audio">Generate response audio</h1>
+<p>Local Voice Pipeline can use the <a href="https://huggingface.co/spaces/hkchengrex/OmniVoice">OmniVoice Hugging Face Space</a> to create spoken response clips from a reference voice. The generated WAV files are normalized and published directly into the response library used by the listener.</p>
 <div class="admonition warning">
-<p class="admonition-title">The Studio can change your library</p>
-<p>Adding or removing commands and takes edits files in your data folder. Back up <code>commands.toml</code> and recordings privately if the library is important.</p>
+<p class="admonition-title">Reference audio is uploaded</p>
+<p>Recognition stays local, but this optional generation workflow sends the selected reference recording and response text to the Hugging Face Space. Use a voice only with the speaker's permission. The command requires <code>--confirm-upload</code> so this cannot happen accidentally.</p>
 </div>
+<h2 id="install-the-optional-client">Install the optional client</h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">From a checkout</label><label for="__tabbed_1_2">From a package release</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[capture,voice-clone]"</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"local-voice-pipeline[capture,voice-clone]"</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="prepare-the-reference">Prepare the reference</h2>
+<p>Use a clean recording of roughly 3–10 seconds with one speaker, little background noise, and no music. A transcript of the reference is optional because the Space can transcribe it, but supplying the exact words usually removes ambiguity.</p>
+<h2 id="generate-one-response">Generate one response</h2>
+<p><code>--response</code> is a name from the <code>[responses]</code> section of <code>commands.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>local-voice<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>clone-response<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--response<span class="w"> </span>welcome<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--text<span class="w"> </span><span class="s2">"Welcome home"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--reference<span class="w"> </span>voice-data/reference.wav<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>--reference-text<span class="w"> </span><span class="s2">"This is the voice reference."</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span>--language<span class="w"> </span>English<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span>--assets<span class="w"> </span>voice-data/assets<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span>--confirm-upload
+</code></pre></div>
+<p>On PowerShell, put the command on one line or replace each <code>\</code> continuation with a backtick.</p>
+<p>The command saves two forms:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>voice-data/assets/
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── welcome/
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>│   └── omnivoice_0001.wav   # private generated source
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>└── welcome_1.wav            # normalized clip used for playback
+</code></pre></div>
+<p>Generate another line with the same response name to add variety. The response player chooses between the published clips without immediately repeating one.</p>
+<h2 id="authentication">Authentication</h2>
+<p>The default <code>hkchengrex/OmniVoice</code> Space is public and currently needs no token. If it becomes private or gated, set a Hugging Face access token in the environment:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Windows PowerShell</label><label for="__tabbed_2_2">macOS / Linux</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">$env:HF_TOKEN</span> <span class="p">=</span> <span class="s2">"your-token"</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HF_TOKEN</span><span class="o">=</span><span class="s2">"your-token"</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Do not put the token in <code>commands.toml</code>, scripts, shell history, or the repository. The client reads <code>HF_TOKEN</code> at runtime and does not save it.</p>
+<h2 id="python-api">Python API</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ha_voice</span><span class="w"> </span><span class="kn">import</span> <span class="n">CloneSettings</span><span class="p">,</span> <span class="n">HuggingFaceSpaceVoiceCloner</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">cloner</span> <span class="o">=</span> <span class="n">HuggingFaceSpaceVoiceCloner</span><span class="p">()</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">result</span> <span class="o">=</span> <span class="n">cloner</span><span class="o">.</span><span class="n">clone_to_library</span><span class="p">(</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">"Welcome home"</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">reference_audio</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/reference.wav"</span><span class="p">),</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">assets_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/assets"</span><span class="p">),</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">response_prefix</span><span class="o">=</span><span class="s2">"welcome"</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">settings</span><span class="o">=</span><span class="n">CloneSettings</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">"English"</span><span class="p">),</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">consent_to_upload</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">source_path</span><span class="p">)</span>
+</code></pre></div>
+<p>For a private Space, pass a token read from your environment to <code>HuggingFaceSpaceVoiceCloner(token=...)</code>.</p>
+<h2 id="quality-controls">Quality controls</h2>
+<p>The common controls are available as command options:</p>
+<ul>
+<li><code>--steps</code>: 4–64 inference steps; 32 is the quality/speed default.</li>
+<li><code>--guidance-scale</code>: 0–4; 2.0 is the default.</li>
+<li><code>--speed</code>: 0.5–1.5 unless a fixed duration is supplied.</li>
+<li><code>--duration</code>: optional fixed output duration in seconds.</li>
+<li><code>--instruct</code>: optional voice direction supported by OmniVoice.</li>
+<li><code>--attempts</code>: total attempts after transient ZeroGPU or connection failures; the default is 2.</li>
+</ul>
+<p>The first request may take longer if the Space needs to wake or load the model.</p>
 
 
 

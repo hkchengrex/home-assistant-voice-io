@@ -5,6 +5,12 @@ from importlib.metadata import PackageNotFoundError, version
 from .actions import ActionResult, CommandHandler
 from .config import AppConfig, CommandConfig, RecognizerConfig, load_config
 from .matcher import MatchResult, Template, classify, load_templates
+from .voice_generation import (
+    CloneResult,
+    CloneSettings,
+    HuggingFaceSpaceVoiceCloner,
+    VoiceGenerationError,
+)
 
 try:
     __version__ = version("local-voice-pipeline")
@@ -16,9 +22,13 @@ __all__ = [
     "AppConfig",
     "CommandConfig",
     "CommandHandler",
+    "CloneResult",
+    "CloneSettings",
+    "HuggingFaceSpaceVoiceCloner",
     "MatchResult",
     "RecognizerConfig",
     "Template",
+    "VoiceGenerationError",
     "classify",
     "load_config",
     "load_templates",
