@@ -6,6 +6,12 @@ and dynamic time warping, provides a browser-based training studio, and can run
 an always-on start-phrase listener. It does not transcribe speech or require a
 cloud service.
 
+**[Read the documentation](https://hkchengrex.github.io/home-assistant-voice-io/)**
+for the guided setup, training, integration, and deployment guides.
+
+**[Read the documentation](https://hkchengrex.github.io/home-assistant-voice-io/)**
+for the guided setup, training, integration, and deployment guides.
+
 ## What it does
 
 - Teach it custom voice commands by recording examples.

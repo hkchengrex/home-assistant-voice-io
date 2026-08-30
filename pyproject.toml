@@ -25,6 +25,7 @@ dependencies = ["numpy>=1.26,<3"]
 [project.optional-dependencies]
 capture = ["sounddevice>=0.5,<1"]
 dev = ["build>=1,<2", "pytest>=8,<9", "sounddevice>=0.5,<1"]
+docs = ["mkdocs-material>=9.7,<10"]
 
 [project.scripts]
 local-voice = "ha_voice.cli:main"
