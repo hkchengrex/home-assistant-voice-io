@@ -8,5 +8,9 @@ build/
 *.egg-info/
 recordings/
 assets/
+!documentation/assets/
+!documentation/assets/**
+!docs/assets/
+!docs/assets/**
 .env
 *.local.toml
