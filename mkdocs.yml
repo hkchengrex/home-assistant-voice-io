@@ -1,6 +1,6 @@
 site_name: Local Voice Pipeline
 site_description: Train and run fast, private voice commands on your own hardware.
-site_url: https://hkchengrex.github.io/home-assistant-voice-io/
+site_url: https://hkchengrex.com/home-assistant-voice-io/
 repo_url: https://github.com/hkchengrex/home-assistant-voice-io
 repo_name: hkchengrex/home-assistant-voice-io
 edit_uri: edit/main/documentation/
