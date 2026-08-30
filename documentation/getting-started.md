@@ -1,6 +1,6 @@
 # Train your first command
 
-You can go from a fresh checkout to a tested local command in about ten minutes.
+This guide covers installation, recording training examples, and testing a command.
 
 ## What you need
 

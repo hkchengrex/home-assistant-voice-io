@@ -1,5 +1,5 @@
 site_name: Local Voice Pipeline
-site_description: Train and run fast, private voice commands on your own hardware.
+site_description: Documentation for local voice-command recognition, training, and deployment.
 site_url: https://hkchengrex.com/home-assistant-voice-io/
 repo_url: https://github.com/hkchengrex/home-assistant-voice-io
 repo_name: hkchengrex/home-assistant-voice-io
@@ -16,7 +16,6 @@ theme:
   favicon: assets/favicon.svg
   features:
     - navigation.instant
-    - navigation.tabs
     - navigation.sections
     - navigation.top
     - search.highlight
@@ -24,12 +23,16 @@ theme:
     - content.code.copy
   palette:
     - media: "(prefers-color-scheme: light)"
-      scheme: localvoice-light
+      scheme: default
+      primary: white
+      accent: blue
       toggle:
         icon: material/weather-night
         name: Use dark mode
     - media: "(prefers-color-scheme: dark)"
-      scheme: localvoice-dark
+      scheme: slate
+      primary: black
+      accent: blue
       toggle:
         icon: material/weather-sunny
         name: Use light mode
@@ -69,4 +72,4 @@ markdown_extensions:
 extra_css:
   - stylesheets/extra.css
 
-copyright: Local Voice Pipeline is MIT licensed. Your recordings stay yours.
+copyright: MIT License

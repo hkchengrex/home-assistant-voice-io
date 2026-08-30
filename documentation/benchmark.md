@@ -1,6 +1,6 @@
 # Benchmark
 
-The reference test shows that template matching can be responsive on modest, passively cooled hardware.
+This page records recognition timings from a first-generation Microsoft Surface Go.
 
 ## Result
 
