@@ -1,5 +1,6 @@
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 import json
 
 import numpy as np
@@ -96,6 +97,115 @@ def test_dismiss_removes_candidate_without_training_it(tmp_path: Path) -> None:
 @pytest.fixture
 def config():
     return load_config(Path(__file__).resolve().parents[1] / "commands.toml")
+
+
+def test_command_window_expires_without_new_audio_and_rearms_after_feedback(tmp_path, config, monkeypatch):
+    clock = [1000.0]
+    monkeypatch.setattr("ha_voice.diagnostics.time.time", lambda: clock[0])
+    listener = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    studio = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    event = listener.capture(_samples(), _start_result())
+    assert studio.list_events()[0]["command_status"] == "waiting"
+    clock[0] += 2  # Acknowledgement playback takes time.
+    listener.arm_command_window()
+    deadline = clock[0] + config.start_phrase.command_timeout_seconds
+    metadata_path = listener.root / event / "metadata.json"
+    persisted = metadata_path.read_bytes()
+    assert json.loads(persisted)["command_deadline_at"] == deadline
+    clock[0] = deadline - .01
+    assert studio.list_events()[0]["command_status"] == "waiting"
+    clock[0] = deadline
+    assert studio.list_events()[0]["command_status"] == "nothing_detected"
+    assert metadata_path.read_bytes() == persisted  # Polling does not rewrite captures.
+
+
+@pytest.mark.parametrize("accepted", [True, False])
+def test_captured_command_is_not_mislabeled_as_nothing_detected(tmp_path, config, monkeypatch, accepted):
+    clock = [1000.0]
+    monkeypatch.setattr("ha_voice.diagnostics.time.time", lambda: clock[0])
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.capture(_samples(), _start_result())
+    clock[0] += 30  # Classification may finish after the command deadline.
+    queue.capture(_samples(), {**_command_result(), "accepted": accepted})
+    assert queue.list_events()[0]["command_status"] == ("accepted" if accepted else "rejected")
+
+
+@pytest.mark.parametrize("next_result", [_start_result(), {"kind": "ignored", "accepted": False}])
+def test_next_interaction_closes_unanswered_start(tmp_path, config, next_result):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    first = queue.capture(_samples(), _start_result())
+    queue.capture(_samples(), next_result)
+    old = next(event for event in queue.list_events() if event["id"] == first)
+    assert old["command_status"] == "nothing_detected"
+
+
+def test_old_capture_without_deadline_or_reason_remains_readable(tmp_path, config, monkeypatch):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000)
+    event = queue.capture(_samples(), _start_result())
+    event_dir = queue.root / event
+    metadata = queue._read_metadata(event_dir)
+    metadata.pop("command_deadline_at")
+    metadata["created_at"] = "1970-01-01T00:16:40+00:00"
+    queue._write_metadata(event_dir, metadata)
+    queue.config = config
+    monkeypatch.setattr("ha_voice.diagnostics.time.time", lambda: 1001)
+    assert queue.list_events()[0]["command_status"] == "waiting"
+    monkeypatch.setattr("ha_voice.diagnostics.time.time", lambda: 2000)
+    assert queue.list_events()[0]["command_status"] == "nothing_detected"
+    metadata["command"] = {**_command_result(), "accepted": False, "margin": 0}
+    queue._write_metadata(event_dir, metadata)
+    listed = queue.list_events()[0]
+    assert listed["command_status"] == "rejected"
+    assert "rejection_reason" not in listed["command"]  # Do not infer historical thresholds.
+
+
+@pytest.mark.parametrize("score,margin,reason", [
+    (3.0, 0.0, "margin"), (5.0, .1, "distance"), (5.0, 0.0, "distance_and_margin"),
+    (np.float32(3.0), np.float32(0.0), "margin"),
+])
+def test_rejection_reason_and_thresholds_are_snapshotted(tmp_path, config, score, margin, reason):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.capture(_samples(), _start_result())
+    result = {**_command_result(), "accepted": False, "score": score, "margin": margin}
+    original = result.copy()
+    queue.capture(_samples(), result)
+    queue.config = replace(config, recognizer=replace(config.recognizer, max_distance=99, min_margin=0))
+    command = queue.list_events()[0]["command"]
+    assert command["rejection_reason"] == reason
+    assert command["max_distance"] == config.recognizer.max_distance
+    assert command["min_margin"] == config.recognizer.min_margin
+    assert result == original  # Diagnostic enrichment must not alter recognition output.
+
+
+def test_explicit_duration_rejection_is_preserved(tmp_path, config):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.capture(_samples(), _start_result())
+    queue.capture(_samples(), {**_command_result(), "accepted": False, "margin": 0,
+                              "rejection_reason": "command_too_short", "min_audio_seconds": .42})
+    command = queue.list_events()[0]["command"]
+    assert command["rejection_reason"] == "command_too_short"
+    assert command["min_audio_seconds"] == .42
+
+
+def test_missed_wake_uses_wake_thresholds_and_label(tmp_path, config):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.set_review_mode(True)
+    queue.capture(_samples(), {"kind": "ignored", "accepted": False, "score": 3, "margin": .035,
+                              "best_command": config.start_phrase.name})
+    attempt = queue.list_events()[0]["attempt"]
+    assert attempt["rejection_reason"] == "margin"
+    assert attempt["min_margin"] == config.start_phrase.min_margin
+    queue.capture(_samples(), {"kind": "ignored", "accepted": False, "score": 3, "margin": .2,
+                              "best_command": "_not_start_phrase"})
+    assert queue.list_events()[0]["attempt"]["rejection_reason"] == "not_start_phrase"
+    assert queue.list_events()[0]["command_status"] is None
+
+
+def test_accepted_result_has_no_inferred_rejection_reason(tmp_path, config):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.capture(_samples(), _start_result())
+    queue.capture(_samples(), _command_result())
+    assert "rejection_reason" not in queue.list_events()[0]["command"]
 
 
 def test_missed_attempts_opt_in_is_shared_and_expires(tmp_path, monkeypatch):

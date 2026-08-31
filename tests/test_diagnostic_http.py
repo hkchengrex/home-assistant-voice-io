@@ -79,6 +79,22 @@ def test_invalid_teaching_does_not_reload_listener(server):
     assert not server.update_calls
 
 
+def test_http_polling_distinguishes_expired_and_rejected_commands(server, monkeypatch):
+    clock = [1000.0]
+    monkeypatch.setattr("ha_voice.diagnostics.time.time", lambda: clock[0])
+    queue = TriggerCaptureQueue(server.recordings_dir, sample_rate=16000, config=server.app_config)
+    samples = np.zeros(16000, dtype=np.float32)
+    queue.capture(samples, {"kind": "start_phrase", "accepted": True})
+    assert request(server, "/api/diagnostics")[1]["events"][0]["command_status"] == "waiting"
+    clock[0] += server.app_config.start_phrase.command_timeout_seconds
+    assert request(server, "/api/diagnostics")[1]["events"][0]["command_status"] == "nothing_detected"
+    queue.capture(samples, {"kind": "command", "accepted": False, "score": 3, "margin": 0})
+    event = request(server, "/api/diagnostics")[1]["events"][0]
+    assert event["command_status"] == "rejected"
+    assert event["command"]["rejection_reason"] == "margin"
+    assert not server.update_calls
+
+
 def test_teaching_requires_stopped_studio_test(server, monkeypatch):
     monkeypatch.setattr(server.listener, "snapshot", lambda: {"running": True})
     assert request(server, "/api/diagnostics/bad/teach", {"clip": "attempt", "label": "lights_on"})[0] == 409

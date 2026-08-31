@@ -50,6 +50,13 @@ is labeled separately, so correcting a command does not reject a valid wake phra
 Teaching saves one training take and reloads a managed listener; it never executes
 the labeled command. Stop Studio continuous testing before teaching a clip.
 
+Each interaction distinguishes **waiting for command**, **nothing detected** after
+the command window expires, **rejected** speech (with its reason and closest match),
+and an **accepted** command. New captures retain the thresholds used at that time,
+so margin and distance failures are not confused with missing audio. Older rejected
+clips without this information show **reason not recorded**. "Accepted" describes
+recognition, not whether an external action succeeded. Status refreshes automatically.
+
 An accepted wake phrase and its following command are normally saved, including
 rejected commands. To collect missed wake phrases, enable **Capture missed attempts
 (5 min)**. This opt-in also retains speech rejected before the command window.

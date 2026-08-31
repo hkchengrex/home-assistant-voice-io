@@ -846,8 +846,8 @@ async function loadSavedTakes() {
   elements.savedSummary.textContent = `${payload.samples.length} local recording${payload.samples.length === 1 ? "" : "s"} · “${command.utterance}”`;
 }
 
-function diagnosticMetric(result) {
-  if (!result) return "No command followed";
+function diagnosticMetric(result, emptyState) {
+  if (!result) return emptyState === "waiting" ? "Awaiting speech" : "No command audio captured";
   const score = Number(result.score);
   const margin = Number(result.margin);
   const scoreText = Number.isFinite(score) ? score.toFixed(3) : "—";
@@ -855,7 +855,22 @@ function diagnosticMetric(result) {
   return `score ${scoreText} · margin ${marginText}`;
 }
 
-function diagnosticClip(label, result, className = "", eventId = "", clipName = "") {
+function diagnosticRejection(result) {
+  const reasons = {
+    margin: "margin too low",
+    distance: "match distance too high",
+    distance_and_margin: "match distance too high and margin too low",
+    command_too_short: "command too short",
+    start_too_short: "wake phrase too short",
+    start_too_long: "wake phrase too long",
+    duration_limit: "recording duration limit reached",
+    not_start_phrase: "not the wake phrase",
+  };
+  return reasons[result?.rejection_reason] || (result?.rejection_reason
+    ? String(result.rejection_reason).replaceAll("_", " ") : "reason not recorded");
+}
+
+function diagnosticClip(label, result, className = "", eventId = "", clipName = "", emptyState = "waiting") {
   const clip = document.createElement("div");
   clip.className = `trigger-clip ${className}`.trim();
   const heading = document.createElement("div");
@@ -863,9 +878,17 @@ function diagnosticClip(label, result, className = "", eventId = "", clipName = 
   const phase = document.createElement("span");
   phase.textContent = label;
   const metric = document.createElement("strong");
-  metric.textContent = diagnosticMetric(result);
+  metric.textContent = diagnosticMetric(result, emptyState);
   heading.append(phase, metric);
   clip.append(heading);
+  if (result) {
+    const outcome = document.createElement("p");
+    const closest = result.best_utterance || result.best_command;
+    outcome.textContent = result.accepted
+      ? `Accepted${result.utterance ? `: ${result.utterance}` : ""}`
+      : `Rejected: ${diagnosticRejection(result)}${closest ? `. Closest match: ${closest}` : ""}`;
+    clip.append(outcome);
+  }
   if (result?.audio_url) {
     const audio = document.createElement("audio");
     audio.controls = true;
@@ -925,8 +948,12 @@ function renderDiagnostics(events, capacity) {
     const head = document.createElement("div");
     head.className = "trigger-event-head";
     const title = document.createElement("strong");
-    const predicted = event.command?.utterance || event.command?.best_utterance;
-    title.textContent = event.attempt ? "Review attempt" : predicted ? `Start → ${predicted}` : "Start → waiting for command";
+    const predicted = event.command?.utterance || event.command?.best_utterance || event.command?.command || "command";
+    title.textContent = event.attempt
+      ? (event.attempt.accepted ? "Accepted attempt" : `Rejected attempt: ${diagnosticRejection(event.attempt)}`)
+      : event.command
+        ? (event.command.accepted ? `Start → accepted: ${predicted}` : `Start → rejected: ${diagnosticRejection(event.command)}`)
+        : event.command_status === "nothing_detected" ? "Start → nothing detected" : "Start → waiting for command";
     const timestamp = document.createElement("time");
     timestamp.dateTime = event.created_at || "";
     const created = new Date(event.created_at);
@@ -947,7 +974,8 @@ function renderDiagnostics(events, capacity) {
       pair.append(
         diagnosticClip("Start accepted", event.start, "", event.id, "start"),
         arrow,
-        diagnosticClip("Following command", event.command, "command", event.id, "command"),
+        diagnosticClip(event.command ? "Following command" : event.command_status === "nothing_detected" ? "Nothing detected" : "Waiting for command",
+          event.command, "command", event.id, "command", event.command_status),
       );
     }
     content.append(head, pair);
@@ -976,7 +1004,7 @@ async function loadDiagnostics({ force = false } = {}) {
     const events = payload.events || [];
     renderMissedReview(payload.review_mode);
     const signature = events
-      .map((event) => JSON.stringify([event.id, event.command?.audio_url, event.start?.taught_as, event.command?.taught_as, event.attempt?.taught_as]))
+      .map((event) => JSON.stringify([event.id, event.command_status, event.command?.audio_url, event.command?.rejection_reason, event.start?.taught_as, event.command?.taught_as, event.attempt?.taught_as]))
       .join("|");
     const interacting = elements.triggerReviewList.contains(document.activeElement)
       || [...elements.triggerReviewList.querySelectorAll("audio")].some((audio) => !audio.paused);

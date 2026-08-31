@@ -22,6 +22,7 @@ from .config import AppConfig
 DEFAULT_TRIGGER_CAPTURE_LIMIT = 20
 _EVENT_ID = re.compile(r"\d{8}T\d{12}Z")
 _RESULT_FIELDS = (
+    "kind",
     "accepted",
     "command",
     "utterance",
@@ -36,6 +37,8 @@ _RESULT_FIELDS = (
     "audio_seconds",
     "match_seconds",
     "action_status",
+    "min_audio_seconds",
+    "max_audio_seconds",
 )
 
 
@@ -51,13 +54,26 @@ def _json_value(value: Any) -> Any:
     return str(value)
 
 
-def _result_metadata(result: dict[str, Any], filename: str) -> dict[str, Any]:
+def _result_metadata(result: dict[str, Any], filename: str, config: AppConfig | None = None) -> dict[str, Any]:
     metadata = {
         field: _json_value(result[field])
         for field in _RESULT_FIELDS
         if field in result
     }
     metadata["audio_file"] = filename
+    if config is not None:
+        settings = config.recognizer if result.get("kind") == "command" else config.start_phrase
+        metadata.update(max_distance=settings.max_distance, min_margin=settings.min_margin)
+        if result.get("accepted") is False and not result.get("rejection_reason"):
+            score, margin = metadata.get("score"), metadata.get("margin")
+            if result.get("kind") == "ignored" and result.get("best_command") not in {None, config.start_phrase.name}:
+                metadata["rejection_reason"] = "not_start_phrase"
+            elif isinstance(score, (int, float)) and isinstance(margin, (int, float)) and math.isfinite(score) and math.isfinite(margin):
+                distance_failed = score > settings.max_distance
+                margin_failed = margin < settings.min_margin
+                metadata["rejection_reason"] = (
+                    "distance_and_margin" if distance_failed and margin_failed else
+                    "distance" if distance_failed else "margin" if margin_failed else None)
     return metadata
 
 
@@ -70,6 +86,7 @@ class TriggerCaptureQueue:
         *,
         sample_rate: int,
         max_events: int = DEFAULT_TRIGGER_CAPTURE_LIMIT,
+        config: AppConfig | None = None,
     ) -> None:
         if max_events < 1:
             raise ValueError("max_events must be at least 1")
@@ -77,11 +94,54 @@ class TriggerCaptureQueue:
         self.root = recordings_dir / "_diagnostics" / "trigger_candidates"
         self.sample_rate = sample_rate
         self.max_events = max_events
+        self.config = config
         self._lock = threading.Lock()
         self._pending_event_id: str | None = None
         self.root.mkdir(parents=True, exist_ok=True)
         with self._lock:
             self._prune_locked()
+
+    @property
+    def command_timeout_seconds(self) -> float:
+        return self.config.start_phrase.command_timeout_seconds if self.config else 5.0
+
+    def arm_command_window(self) -> None:
+        """Refresh diagnostic timing after acknowledgement playback, like the gate."""
+        with self._lock:
+            if self._pending_event_id is None:
+                return
+            event_dir = self._event_dir(self._pending_event_id)
+            if not event_dir.is_dir():
+                return
+            metadata = self._read_metadata(event_dir)
+            metadata["command_deadline_at"] = time.time() + self.command_timeout_seconds
+            self._write_metadata(event_dir, metadata)
+
+    def _close_pending_locked(self) -> None:
+        if self._pending_event_id is not None:
+            event_dir = self._event_dir(self._pending_event_id)
+            if event_dir.is_dir():
+                metadata = self._read_metadata(event_dir)
+                if metadata.get("command") is None:
+                    metadata["command_window_closed"] = True
+                    self._write_metadata(event_dir, metadata)
+            self._pending_event_id = None
+
+    def _command_status(self, metadata: dict[str, Any]) -> str | None:
+        command = metadata.get("command")
+        if isinstance(command, dict):
+            return "accepted" if command.get("accepted") else "rejected"
+        if not metadata.get("start"):
+            return None
+        try:
+            deadline = metadata.get("command_deadline_at")
+            if deadline is None:
+                # Old entries predate explicit timing; use their capture timestamp.
+                deadline = datetime.fromisoformat(metadata["created_at"]).timestamp() + self.command_timeout_seconds
+            waiting = not metadata.get("command_window_closed") and time.time() < float(deadline)
+        except (ValueError, TypeError, KeyError, OverflowError):
+            waiting = False
+        return "waiting" if waiting else "nothing_detected"
 
     def review_status(self) -> dict[str, Any]:
         """Read the short-lived opt-in shared with the separate live listener."""
@@ -207,7 +267,7 @@ class TriggerCaptureQueue:
         if kind == "ignored" or (kind == "command" and self._pending_event_id is None):
             with self._lock:
                 # An ignored wake attempt starts a new interaction, not the old pair.
-                self._pending_event_id = None
+                self._close_pending_locked()
                 if not self.review_status()["active"]:
                     return None
                 event_id = self._new_event_id_locked()
@@ -217,11 +277,12 @@ class TriggerCaptureQueue:
                 self._write_metadata(event_dir, {"id": event_id,
                     "created_at": datetime.now(timezone.utc).isoformat(),
                     "start": None, "command": None,
-                    "attempt": _result_metadata(result, "attempt.wav")})
+                    "attempt": _result_metadata(result, "attempt.wav", self.config)})
                 self._prune_locked()
                 return event_id
         if kind == "start_phrase" and result.get("accepted"):
             with self._lock:
+                self._close_pending_locked()
                 event_id = self._new_event_id_locked()
                 event_dir = self.root / event_id
                 event_dir.mkdir(parents=True)
@@ -232,8 +293,9 @@ class TriggerCaptureQueue:
                 metadata = {
                     "id": event_id,
                     "created_at": datetime.now(timezone.utc).isoformat(),
-                    "start": _result_metadata(result, "start.wav"),
+                    "start": _result_metadata(result, "start.wav", self.config),
                     "command": None,
+                    "command_deadline_at": time.time() + self.command_timeout_seconds,
                 }
                 self._write_metadata(event_dir, metadata)
                 self._pending_event_id = event_id
@@ -254,7 +316,7 @@ class TriggerCaptureQueue:
                     Audio(np.asarray(samples, dtype=np.float32), self.sample_rate),
                 )
                 metadata = self._read_metadata(event_dir)
-                metadata["command"] = _result_metadata(result, "command.wav")
+                metadata["command"] = _result_metadata(result, "command.wav", self.config)
                 self._write_metadata(event_dir, metadata)
                 return event_id
         return None
@@ -270,6 +332,7 @@ class TriggerCaptureQueue:
                 event_id = event_dir.name
                 start = metadata.get("start")
                 command = metadata.get("command")
+                metadata["command_status"] = self._command_status(metadata)
                 if isinstance(start, dict) and (event_dir / "start.wav").is_file():
                     start["audio_url"] = f"/api/diagnostics/{event_id}/start.wav"
                 if isinstance(command, dict) and (event_dir / "command.wav").is_file():

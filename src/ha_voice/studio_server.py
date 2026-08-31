@@ -392,6 +392,7 @@ class StudioServer(ThreadingHTTPServer):
         self.trigger_captures = TriggerCaptureQueue(
             recordings_dir,
             sample_rate=config.recognizer.sample_rate,
+            config=config,
         )
 
     def response_workspace(self):
@@ -410,6 +411,7 @@ class StudioServer(ThreadingHTTPServer):
         if self.config_path is None:
             raise RuntimeError("This studio cannot edit its command configuration")
         self.app_config = load_config(self.config_path)
+        self.trigger_captures.config = self.app_config
 
     def update_managed_listener(self) -> dict[str, Any]:
         """Restart an optional external listener after library changes."""
@@ -484,6 +486,7 @@ class StudioServer(ThreadingHTTPServer):
                     sample_rate=self.app_config.recognizer.sample_rate
                 )
                 gate.arm_command_window()
+                self.trigger_captures.arm_command_window()
 
             self.listener.start(
                 device=device,

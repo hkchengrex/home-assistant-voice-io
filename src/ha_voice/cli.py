@@ -463,11 +463,13 @@ def _run_continuously(
         diagnostic_queue = TriggerCaptureQueue(
             recordings,
             sample_rate=config.recognizer.sample_rate,
+            config=config,
         )
         def start_feedback() -> None:
             if responses is not None and config.start_phrase.response:
                 responses.play(config.start_phrase.response)
             gate.arm_command_window()
+            diagnostic_queue.arm_command_window()
 
         listener.start(
             device=_device(args.input_device),
