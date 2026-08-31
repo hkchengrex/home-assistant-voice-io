@@ -15,7 +15,7 @@ voice-io --config PATH --recordings PATH COMMAND [OPTIONS]
 | `templates` | Shows the number of recordings for each command. |
 | `calibrate` | Measures same-command and other-command distance separation. |
 | `clone-response` | Generates one cloned response with `--text`, or a batch with `--text-file`. |
-| `studio` | Starts the local Training Studio at port 8765 by default. |
+| `studio` | Starts local command training and response-generation Studio at port 8765 by default. |
 | `run` | Runs continuous wake-phrase or direct listening. |
 
 Use the built-in help for the exact options in your installed version:
@@ -24,10 +24,15 @@ Use the built-in help for the exact options in your installed version:
 voice-io --help
 voice-io record --help
 voice-io clone-response --help
+voice-io studio --help
 voice-io run --help
 ```
 
 ## Special recording sets
+
+Studio uses `assets/` and `response-studio/` beside the recordings directory by default.
+Override them with `studio --assets PATH --response-workspace PATH`. See the
+[response review guide](../response-studio.md) for generation, review, and publication.
 
 - `_start_phrase` contains examples of the configured wake phrase.
 - `_not_command` contains varied speech that should be rejected.

@@ -18,6 +18,7 @@ for the guided setup, training, integration, and deployment guides.
 - Connect recognized commands to Home Assistant or another system.
 - Play spoken or audio responses.
 - Generate cloned response clips individually or in batches through the optional OmniVoice Space client.
+- Write reply phrases, compare multiple generated takes, keep or reject them, and regenerate alternatives in Studio.
 - Run continuously on Windows, macOS, or Linux.
 - Review failed recognitions and improve the training set.
 
@@ -111,6 +112,11 @@ external action implementation. Applications call `ha_voice.cli.main` with a
 APIs directly.
 
 ## Generate response audio
+
+Open **Response generation** in Studio to start from 32 example replies, add your own,
+and generate several takes per phrase. Tune speed, CFG scale, and other OmniVoice
+settings; keep or reject takes and publish only the ones you choose. Drafts and review
+history are saved locally. See the [response Studio guide](https://hkchengrex.com/home-assistant-voice-io/response-studio/).
 
 The optional OmniVoice integration can clone a response from a short reference
 recording and publish it into an existing response group:

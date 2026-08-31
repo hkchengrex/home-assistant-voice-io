@@ -163,6 +163,9 @@ def publish_asset_library(
             published.append((destination, result))
             destinations.add(destination)
         for stale in directory.glob(f"{prefix}_*.wav"):
+            # Review Studio manages these explicitly; CLI publishing must preserve them.
+            if stale.name.startswith(f"{prefix}_studio_"):
+                continue
             if stale not in destinations:
                 stale.unlink()
     return published

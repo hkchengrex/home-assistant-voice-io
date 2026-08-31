@@ -16,7 +16,7 @@
         <link rel="prev" href="../integrations/">
       
       
-        <link rel="next" href="../configuration/">
+        <link rel="next" href="../response-studio/">
       
       
         
@@ -673,6 +673,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../response-studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Review response takes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../configuration/" class="md-nav__link">
         
   
@@ -1063,7 +1091,7 @@
 
 
 <h1 id="generate-response-audio">Generate response audio</h1>
-<p>Home Assistant Voice IO can use the <a href="https://huggingface.co/spaces/hkchengrex/OmniVoice">OmniVoice Hugging Face Space</a> to create spoken response clips from a reference voice. The generated WAV files are normalized and published directly into the response library used by the listener.</p>
+<p>Home Assistant Voice IO can use the <a href="https://huggingface.co/spaces/hkchengrex/OmniVoice">OmniVoice Hugging Face Space</a> to create spoken response clips from a reference voice. The command-line workflow below normalizes and publishes them directly. To compare alternatives and approve them before playback, use the <a href="../response-studio/">Response generation Studio</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Reference audio is uploaded</p>
 <p>Recognition stays local, but this optional generation workflow sends the selected reference recording and response text to the Hugging Face Space. Use a voice only with the speaker's permission. The command requires <code>--confirm-upload</code> so this cannot happen accidentally.</p>

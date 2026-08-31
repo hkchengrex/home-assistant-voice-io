@@ -1,6 +1,6 @@
 # Generate response audio
 
-Home Assistant Voice IO can use the [OmniVoice Hugging Face Space](https://huggingface.co/spaces/hkchengrex/OmniVoice) to create spoken response clips from a reference voice. The generated WAV files are normalized and published directly into the response library used by the listener.
+Home Assistant Voice IO can use the [OmniVoice Hugging Face Space](https://huggingface.co/spaces/hkchengrex/OmniVoice) to create spoken response clips from a reference voice. The command-line workflow below normalizes and publishes them directly. To compare alternatives and approve them before playback, use the [Response generation Studio](response-studio.md).
 
 !!! warning "Reference audio is uploaded"
     Recognition stays local, but this optional generation workflow sends the selected reference recording and response text to the Hugging Face Space. Use a voice only with the speaker's permission. The command requires `--confirm-upload` so this cannot happen accidentally.

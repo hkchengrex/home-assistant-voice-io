@@ -9,6 +9,7 @@ from .voice_generation import (
     BatchCloneResult,
     CloneResult,
     CloneSettings,
+    GeneratedBatch,
     HuggingFaceSpaceVoiceCloner,
     VoiceGenerationError,
 )
@@ -26,6 +27,7 @@ __all__ = [
     "CommandHandler",
     "CloneResult",
     "CloneSettings",
+    "GeneratedBatch",
     "HuggingFaceSpaceVoiceCloner",
     "MatchResult",
     "RecognizerConfig",

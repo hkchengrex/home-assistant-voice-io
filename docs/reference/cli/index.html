@@ -536,6 +536,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../response-studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Review response takes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../configuration/" class="md-nav__link">
         
   
@@ -972,7 +1000,7 @@
 </tr>
 <tr>
 <td><code>studio</code></td>
-<td>Starts the local Training Studio at port 8765 by default.</td>
+<td>Starts local command training and response-generation Studio at port 8765 by default.</td>
 </tr>
 <tr>
 <td><code>run</code></td>
@@ -984,9 +1012,13 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>voice-io<span class="w"> </span>--help
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>voice-io<span class="w"> </span>record<span class="w"> </span>--help
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>voice-io<span class="w"> </span>clone-response<span class="w"> </span>--help
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>voice-io<span class="w"> </span>run<span class="w"> </span>--help
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>voice-io<span class="w"> </span>studio<span class="w"> </span>--help
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>voice-io<span class="w"> </span>run<span class="w"> </span>--help
 </code></pre></div>
 <h2 id="special-recording-sets">Special recording sets</h2>
+<p>Studio uses <code>assets/</code> and <code>response-studio/</code> beside the recordings directory by default.
+Override them with <code>studio --assets PATH --response-workspace PATH</code>. See the
+<a href="../../response-studio/">response review guide</a> for generation, review, and publication.</p>
 <ul>
 <li><code>_start_phrase</code> contains examples of the configured wake phrase.</li>
 <li><code>_not_command</code> contains varied speech that should be rejected.</li>

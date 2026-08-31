@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import threading
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote, urlparse
@@ -29,6 +30,8 @@ from .library import add_command, archive_command, archive_recording
 from .matcher import Template, classify, load_start_phrase_templates, load_templates
 from .start_phrase import StartPhraseGate
 from .services import ListenerManager, NoopListenerManager
+from .response_http import handle_response_request
+from .response_studio import ResponseStudio
 
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
@@ -37,6 +40,9 @@ STATIC_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
     "/styles.css": ("styles.css", "text/css; charset=utf-8"),
+    "/responses": ("responses.html", "text/html; charset=utf-8"),
+    "/responses.js": ("responses.js", "text/javascript; charset=utf-8"),
+    "/responses.css": ("responses.css", "text/css; charset=utf-8"),
 }
 
 
@@ -370,17 +376,35 @@ class StudioServer(ThreadingHTTPServer):
         *,
         config_path: Path | None = None,
         listener_manager: ListenerManager | None = None,
+        assets_dir: Path | None = None,
+        response_dir: Path | None = None,
     ) -> None:
         super().__init__(server_address, StudioHandler)
         self.app_config = config
         self.recordings_dir = recordings_dir
         self.config_path = config_path
+        self.assets_dir = assets_dir or recordings_dir.parent / "assets"
+        self.response_dir = response_dir or recordings_dir.parent / "response-studio"
+        self._responses = None
+        self._responses_lock = threading.Lock()
         self.listener_manager = listener_manager or NoopListenerManager()
         self.listener = ContinuousListener(config.recognizer.sample_rate)
         self.trigger_captures = TriggerCaptureQueue(
             recordings_dir,
             sample_rate=config.recognizer.sample_rate,
         )
+
+    def response_workspace(self):
+        with self._responses_lock:
+            if self._responses is None:
+                self._responses = ResponseStudio(self.app_config, self.response_dir, self.assets_dir)
+            self._responses.config = self.app_config
+            return self._responses
+
+    def server_close(self):
+        if self._responses is not None:
+            self._responses.close()
+        super().server_close()
 
     def reload_config(self) -> None:
         if self.config_path is None:
@@ -509,6 +533,8 @@ class StudioHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         path = urlparse(self.path).path
+        if handle_response_request(self, path, "GET"):
+            return
         if path == "/api/state":
             self._send_json(
                 HTTPStatus.OK,
@@ -632,6 +658,8 @@ class StudioHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         path = urlparse(self.path).path
+        if handle_response_request(self, path, "POST"):
+            return
         if path == "/api/commands":
             self._create_command()
             return
@@ -1034,6 +1062,8 @@ def serve_studio(
     host: str = "127.0.0.1",
     port: int = 8765,
     listener_manager: ListenerManager | None = None,
+    assets_dir: Path | None = None,
+    response_dir: Path | None = None,
 ) -> None:
     config = load_config(config_path)
     server = StudioServer(
@@ -1042,6 +1072,8 @@ def serve_studio(
         recordings_dir,
         config_path=config_path,
         listener_manager=listener_manager,
+        assets_dir=assets_dir,
+        response_dir=response_dir,
     )
     print(f"Recording studio: http://{host}:{server.server_port}")
     print("Recordings stay on this computer. Press Ctrl+C to stop.")

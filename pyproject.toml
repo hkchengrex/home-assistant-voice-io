@@ -35,7 +35,7 @@ voice-io = "ha_voice.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-ha_voice = ["studio/*.html", "studio/*.css", "studio/*.js"]
+ha_voice = ["studio/*.html", "studio/*.css", "studio/*.js", "response_examples.json"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

@@ -119,6 +119,8 @@ def _parser() -> argparse.ArgumentParser:
     studio = subparsers.add_parser("studio", help="open the local recording studio")
     studio.add_argument("--host", default="127.0.0.1")
     studio.add_argument("--port", type=int, default=8765)
+    studio.add_argument("--assets", type=_project_path, default=None, help="playback assets (defaults beside recordings)")
+    studio.add_argument("--response-workspace", type=_project_path, default=None, help="private generation drafts and phrase lists")
     studio.add_argument(
         "--managed-service",
         default=None,
@@ -568,6 +570,8 @@ def main(
             host=args.host,
             port=args.port,
             listener_manager=listener_manager,
+            assets_dir=args.assets,
+            response_dir=args.response_workspace,
         )
         return
 

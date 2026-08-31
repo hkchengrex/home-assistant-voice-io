@@ -49,6 +49,7 @@ nav:
   - Use it:
       - Connect an automation: integrations.md
       - Generate response audio: response-generation.md
+      - Review response takes: response-studio.md
       - Configuration: configuration.md
       - Deploy on your platform: deployment.md
   - Reference:

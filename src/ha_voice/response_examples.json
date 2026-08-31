@@ -1,0 +1,10 @@
+{
+  "start": ["Yes?", "I'm listening.", "Go ahead.", "How can I help?"],
+  "welcome": ["Welcome home.", "Good to see you.", "Welcome back.", "Make yourself comfortable."],
+  "morning": ["Good morning.", "Morning!", "Have a good day.", "Ready for a new day?"],
+  "lights_on": ["Done.", "Lights on.", "The lights are on.", "There you go."],
+  "lights_off": ["Done.", "Lights off.", "The lights are off.", "All switched off."],
+  "good_night": ["Good night.", "Sleep well.", "Sweet dreams.", "Rest well. See you tomorrow."],
+  "bye": ["Bye!", "See you later.", "Take care.", "Have a good one."],
+  "nothing": ["Okay.", "No problem.", "All right.", "Let me know if you need anything."]
+}

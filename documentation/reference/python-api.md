@@ -9,6 +9,7 @@ from ha_voice import (
     BatchCloneResult,
     CloneResult,
     CloneSettings,
+    GeneratedBatch,
     CommandConfig,
     CommandHandler,
     MatchResult,
@@ -51,3 +52,12 @@ rename does not change the Python import namespace or application contracts.
 The `ha_voice` import namespace and top-level action/configuration contracts are the intended public boundary. Lower-level audio, feature, Studio, listener, and service modules are available for advanced use but may evolve more quickly before version 1.0.
 
 The Hugging Face voice-cloning API is optional. Importing its public classes does not require `gradio-client`; creating a live client does. Install the `voice-clone` extra before connecting to a Space.
+
+## Generate drafts without publishing
+
+`HuggingFaceSpaceVoiceCloner.generate_batch(...)` accepts the same voice settings,
+reference, text list, and GPU batch size as `clone_batch_to_library(...)`, but it does
+not change the playback library. It returns `GeneratedBatch(audio_paths, remote_metrics)`.
+The audio paths point to client downloads; copy them into your own storage to retain them.
+Explicit `consent_to_upload=True` is required. Studio uses this path to review takes
+before publication; command-line `clone-response` continues to publish directly.

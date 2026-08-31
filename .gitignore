@@ -7,6 +7,9 @@ dist/
 build/
 *.egg-info/
 recordings/
+response-studio/
+!docs/response-studio/
+!docs/response-studio/**
 assets/
 !documentation/assets/
 !documentation/assets/**

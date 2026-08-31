@@ -10,6 +10,10 @@ voice-io --config voice-data/commands.toml --recordings voice-data/recordings st
 
 Then open `http://127.0.0.1:8765`.
 
+For spoken replies rather than recognition examples, choose **Response generation**
+in the header. Its [separate workspace](response-studio.md) supports editable reply lists,
+multiple generated takes, keep/reject review, regeneration, and OmniVoice controls.
+
 ## Build a useful recording set
 
 Choose a command from the left side, select your microphone, and record examples. You can keep or retry each take, replay saved takes, replace weak recordings, and remove mistakes.

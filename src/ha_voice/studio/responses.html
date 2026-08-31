@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Response generation · HA Voice IO</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/responses.css">
+</head>
+<body class="response-page">
+  <header class="masthead">
+    <a class="brand" href="/">HA Voice IO</a>
+    <nav aria-label="Studio sections"><a href="/">Command training</a><a href="/responses" aria-current="page">Response generation</a></nav>
+    <span class="local-note">Drafts stay on this computer</span>
+  </header>
+  <main class="response-main">
+    <div class="response-heading"><div><h1>Response generation</h1><p>Write replies, compare takes, and choose what your assistant says.</p></div><button id="refresh" class="secondary-button">Refresh</button></div>
+    <p id="notice" role="status" aria-live="polite">Loading your response workspace…</p>
+
+    <section class="voice-setup" aria-labelledby="voice-title">
+      <h2 id="voice-title">Reference voice</h2>
+      <div class="reference-grid">
+        <div><label for="reference-file">Reference recording</label><input id="reference-file" type="file" accept=".wav,audio/wav"><button id="upload-reference" class="secondary-button">Save reference</button><p id="reference-info">Choose a 1–20 second, 16-bit PCM WAV. Saving it here does not upload it to Hugging Face.</p><audio id="reference-audio" controls preload="none" hidden aria-label="Reference voice preview"></audio></div>
+        <div><label for="reference-text">Reference transcript <span class="muted">(optional)</span></label><textarea id="reference-text" rows="3" maxlength="4000" placeholder="The exact words spoken in the reference recording"></textarea><p class="muted">Leave empty for automatic transcription by the Space.</p></div>
+      </div>
+      <div class="primary-settings">
+        <label>Speed<input id="speed" type="number" min="0.5" max="1.5" step="0.05" value="1"><small>1 = normal</small></label>
+        <label>CFG scale<input id="guidance_scale" type="number" min="0" max="4" step="0.1" value="2"><small>Guidance strength · default 2</small></label>
+        <label>Inference steps<input id="inference_steps" type="number" min="4" max="64" step="1" value="32"><small>Fewer steps generate faster</small></label>
+        <label>Language<input id="language" value="Auto" maxlength="80" list="languages"><small>Auto, English, or a supported language</small></label>
+      </div>
+      <datalist id="languages"><option value="Auto"><option value="English"><option value="Chinese"><option value="Japanese"><option value="Spanish"><option value="French"><option value="German"></datalist>
+      <details class="advanced-settings"><summary>More voice settings</summary><div class="advanced-grid">
+        <label>Voice direction<input id="instruct" maxlength="500" placeholder="Optional OmniVoice voice attributes"></label>
+        <label>Fixed duration per clip<input id="duration" type="number" min="0.1" max="15" step="0.1" placeholder="Automatic"><small>Seconds · overrides speed when set</small></label>
+        <label class="check"><input id="denoise" type="checkbox" checked>Denoise</label>
+        <label class="check"><input id="preprocess_prompt" type="checkbox" checked>Preprocess reference</label>
+        <label class="check"><input id="postprocess_output" type="checkbox" checked>Postprocess output</label>
+      </div></details>
+      <div class="setup-footer"><button id="save-settings" class="secondary-button">Save voice settings</button><label class="check consent"><input id="consent" type="checkbox">I have permission to use this voice and send this reference and selected text to the OmniVoice Hugging Face Space.</label></div>
+    </section>
+
+    <section id="job-panel" class="job-panel" hidden aria-label="Generation progress"><div><p id="job-status" role="status" aria-live="polite"></p><progress id="job-progress" max="1" value="0"></progress><p id="job-error"></p></div><button id="cancel-job" class="secondary-button" hidden>Stop after this batch</button><button id="retry-job" class="secondary-button" hidden>Retry remaining takes</button></section>
+
+    <div class="response-workbench">
+      <section class="phrase-panel" aria-labelledby="phrases-title">
+        <h2 id="phrases-title">Reply phrases</h2>
+        <label for="group">Response group</label><select id="group"></select>
+        <p id="group-context" class="muted"></p>
+        <p class="muted">These are spoken replies, not command-recognition examples.</p>
+        <div class="phrase-tools"><button id="select-phrases" class="text-button">Select all</button><label class="check"><input id="show-archived" type="checkbox">Show archived</label></div>
+        <div id="phrases" class="phrase-list"></div>
+        <form id="new-phrase-form"><label for="new-phrase">Add a reply</label><textarea id="new-phrase" rows="2" maxlength="300" required placeholder="What should your assistant say?"></textarea><button class="secondary-button" type="submit">Add phrase</button></form>
+        <div class="generation-options"><label>Takes per phrase<input id="takes" type="number" min="1" max="8" step="1" value="3"></label><label>GPU batch size<input id="batch-size" type="number" min="1" max="8" step="1" value="4"></label></div>
+        <p id="generation-summary" class="muted">Select phrases to generate.</p>
+        <button id="generate" class="primary-button">Generate selected phrases</button>
+        <p class="muted">Up to 64 takes per job. You can review completed takes while the rest generate.</p>
+      </section>
+
+      <section class="candidate-panel" aria-labelledby="takes-title">
+        <div class="candidate-heading"><h2 id="takes-title">Generated takes</h2><label><span class="sr-only">Filter takes</span><select id="filter"><option value="all">All takes</option><option value="pending">Awaiting review</option><option value="kept">Kept</option><option value="rejected">Rejected</option><option value="published">Published</option></select></label></div>
+        <p id="take-count" class="muted">No takes yet.</p>
+        <div class="review-toolbar"><button id="select-takes" class="text-button">Select visible takes</button><button id="keep-selected" class="secondary-button">Keep selected</button><button id="reject-selected" class="secondary-button">Reject selected</button><button id="regenerate-selected" class="secondary-button">Regenerate rejected</button></div>
+        <div id="candidates" class="candidate-list"></div>
+        <div class="publish-bar"><div><strong id="publish-count">No kept takes to publish</strong><p>Only published takes enter playback. Existing audio stays untouched.</p></div><button id="publish" class="primary-button">Publish kept takes</button></div>
+        <p class="muted">Rejected takes stay here. Regeneration adds one replacement per rejected take, using the current voice settings. A running listener needs a restart to load published audio. Pause your listener while previewing clips near its microphone.</p>
+      </section>
+    </div>
+  </main>
+  <script src="/responses.js"></script>
+</body>
+</html>

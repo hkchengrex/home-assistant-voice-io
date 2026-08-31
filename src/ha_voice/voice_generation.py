@@ -54,6 +54,12 @@ class BatchCloneResult:
     remote_metrics: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class GeneratedBatch:
+    audio_paths: tuple[Path, ...]
+    remote_metrics: dict[str, Any]
+
+
 ClientFactory = Callable[[str, str | None], Any]
 FileWrapper = Callable[[str], Any]
 Sleep = Callable[[float], None]
@@ -250,6 +256,26 @@ class HuggingFaceSpaceVoiceCloner:
         This endpoint must be installed on the Space; there is no silent fallback
         to independent requests. Do not run simultaneous publishers on one library.
         """
+        if not _SAFE_GROUP.fullmatch(response_prefix):
+            raise ValueError("response_prefix contains unsupported characters")
+        generated = self.generate_batch(
+            texts=texts, reference_audio=reference_audio, settings=settings,
+            batch_size=batch_size, consent_to_upload=consent_to_upload,
+        )
+        try:
+            paths, published = _publish_batch(
+                list(generated.audio_paths), assets_dir.expanduser().resolve(), response_prefix
+            )
+        except (wave.Error, EOFError) as exc:
+            raise VoiceGenerationError("The batch contains invalid WAV audio") from exc
+        return BatchCloneResult(paths, published, generated.remote_metrics)
+
+    def generate_batch(
+        self, *, texts: Sequence[str], reference_audio: Path,
+        settings: CloneSettings | None = None, batch_size: int = 4,
+        consent_to_upload: bool = False,
+    ) -> GeneratedBatch:
+        """Download candidate clips without publishing them to a playback library."""
         if not consent_to_upload:
             raise ValueError("Uploading reference voice audio requires explicit consent")
         if isinstance(texts, (str, bytes)) or not 1 <= len(texts) <= 8:
@@ -261,8 +287,6 @@ class HuggingFaceSpaceVoiceCloner:
             raise ValueError("Batch text is limited to 300 characters per line and 1200 total")
         if isinstance(batch_size, bool) or not isinstance(batch_size, int) or not 1 <= batch_size <= 8:
             raise ValueError("batch_size must be an integer between 1 and 8")
-        if not _SAFE_GROUP.fullmatch(response_prefix):
-            raise ValueError("response_prefix contains unsupported characters")
         reference_audio = reference_audio.expanduser().resolve()
         if not reference_audio.is_file():
             raise ValueError(f"Reference audio does not exist: {reference_audio}")
@@ -291,14 +315,7 @@ class HuggingFaceSpaceVoiceCloner:
             or not isinstance(files, (list, tuple)) or len(files) != len(lines)
         ):
             raise VoiceGenerationError("OmniVoice returned an incomplete or failed batch")
-        generated = [_audio_path(file) for file in files]
-        try:
-            paths, published = _publish_batch(
-                generated, assets_dir.expanduser().resolve(), response_prefix
-            )
-        except (wave.Error, EOFError) as exc:
-            raise VoiceGenerationError("The batch contains invalid WAV audio") from exc
-        return BatchCloneResult(paths, published, dict(metrics))
+        return GeneratedBatch(tuple(_audio_path(file) for file in files), dict(metrics))
 
     def clone_to_library(
         self,
