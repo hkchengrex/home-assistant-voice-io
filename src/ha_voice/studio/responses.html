@@ -37,7 +37,7 @@
         <label class="check"><input id="preprocess_prompt" type="checkbox" checked>Preprocess reference</label>
         <label class="check"><input id="postprocess_output" type="checkbox" checked>Postprocess output</label>
       </div></details>
-      <div class="setup-footer"><button id="save-settings" class="secondary-button">Save voice settings</button><label class="check consent"><input id="consent" type="checkbox">I have permission to use this voice and send this reference and selected text to the OmniVoice Hugging Face Space.</label></div>
+      <div class="setup-footer"><button id="save-settings" class="secondary-button">Save voice settings</button><label class="check consent"><input id="consent" type="checkbox">Generation sends this reference and selected text to the OmniVoice Hugging Face Space.</label></div>
     </section>
 
     <section id="job-panel" class="job-panel" hidden aria-label="Generation progress"><div><p id="job-status" role="status" aria-live="polite"></p><progress id="job-progress" max="1" value="0"></progress><p id="job-error"></p></div><button id="cancel-job" class="secondary-button" hidden>Stop after this batch</button><button id="retry-job" class="secondary-button" hidden>Retry remaining takes</button></section>
