@@ -37,7 +37,7 @@ lights_on = "lights_on"
 | `min_margin` | Required separation from the runner-up. Higher is stricter. | `0.12` |
 | `top_k` | Number of nearest templates combined for each command. | `3` |
 
-Use `local-voice calibrate` to choose a sensible starting distance for your own recordings.
+Use `voice-io calibrate` to choose a sensible starting distance for your own recordings.
 
 ## Commands
 

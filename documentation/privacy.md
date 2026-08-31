@@ -1,6 +1,6 @@
 # Privacy and data ownership
 
-Local Voice Pipeline processes recordings on the machine where it runs. The library has no cloud recognition service and does not need an account.
+Home Assistant Voice IO processes recordings on the machine where it runs. The library has no cloud recognition service and does not need an account.
 
 ## What stays local
 

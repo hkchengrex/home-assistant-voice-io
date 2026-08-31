@@ -44,6 +44,9 @@ For most applications, the continuous CLI already owns capture, wake gating, fee
 
 ## Compatibility boundary
 
+Install the `voice-io` distribution and continue to import `ha_voice`. The package
+rename does not change the Python import namespace or application contracts.
+
 The `ha_voice` import namespace and top-level action/configuration contracts are the intended public boundary. Lower-level audio, feature, Studio, listener, and service modules are available for advanced use but may evolve more quickly before version 1.0.
 
 The Hugging Face voice-cloning API is optional. Importing its public classes does not require `gradio-client`; creating a live client does. Install the `voice-clone` extra before connecting to a Space.

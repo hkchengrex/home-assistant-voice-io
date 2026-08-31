@@ -1,6 +1,6 @@
 # Generate response audio
 
-Local Voice Pipeline can use the [OmniVoice Hugging Face Space](https://huggingface.co/spaces/hkchengrex/OmniVoice) to create spoken response clips from a reference voice. The generated WAV files are normalized and published directly into the response library used by the listener.
+Home Assistant Voice IO can use the [OmniVoice Hugging Face Space](https://huggingface.co/spaces/hkchengrex/OmniVoice) to create spoken response clips from a reference voice. The generated WAV files are normalized and published directly into the response library used by the listener.
 
 !!! warning "Reference audio is uploaded"
     Recognition stays local, but this optional generation workflow sends the selected reference recording and response text to the Hugging Face Space. Use a voice only with the speaker's permission. The command requires `--confirm-upload` so this cannot happen accidentally.
@@ -15,8 +15,10 @@ Local Voice Pipeline can use the [OmniVoice Hugging Face Space](https://huggingf
 
 === "From a package release"
 
+    After a `voice-io` release is published:
+
     ```shell
-    python -m pip install "local-voice-pipeline[capture,voice-clone]"
+    python -m pip install "voice-io[capture,voice-clone]"
     ```
 
 ## Prepare the reference
@@ -28,7 +30,7 @@ Use a clean recording of roughly 3–10 seconds with one speaker, little backgro
 `--response` is a name from the `[responses]` section of `commands.toml`:
 
 ```shell
-local-voice --config voice-data/commands.toml clone-response \
+voice-io --config voice-data/commands.toml clone-response \
   --response welcome \
   --text "Welcome home" \
   --reference voice-data/reference.wav \

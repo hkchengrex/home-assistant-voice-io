@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for local voice-command recognition, training, and deployment.">
+        <meta name="description" content="Home Assistant Voice IO documentation for recognition, training, response generation, and deployment.">
       
       
       
@@ -27,7 +27,7 @@
     
     
       
-        <title>Deploy on your platform - Local Voice Pipeline</title>
+        <title>Deploy on your platform - HA Voice IO</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Local Voice Pipeline" class="md-header__button md-logo" aria-label="Local Voice Pipeline" data-md-component="logo">
+    <a href=".." title="HA Voice IO" class="md-header__button md-logo" aria-label="HA Voice IO" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22 12-2 1-1 1-1-1-1 3-1-3-1 8-1-8-1 2-1-2-1 4-1-4-1 9-1-9-1 6-1-6-1 1-1-1-2-1 2-1 1-1 1 1 1-6 1 6 1-9 1 9 1-4 1 4 1-2 1 2 1-8 1 8 1-3 1 3 1-1 1 1z"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Local Voice Pipeline
+            HA Voice IO
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -228,13 +228,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Local Voice Pipeline" class="md-nav__button md-logo" aria-label="Local Voice Pipeline" data-md-component="logo">
+    <a href=".." title="HA Voice IO" class="md-nav__button md-logo" aria-label="HA Voice IO" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22 12-2 1-1 1-1-1-1 3-1-3-1 8-1-8-1 2-1-2-1 4-1-4-1 9-1-9-1 6-1-6-1 1-1-1-2-1 2-1 1-1 1 1 1-6 1 6 1-9 1 9 1-4 1 4 1-2 1 2 1-8 1 8 1-3 1 3 1-1 1 1z"/></svg>
 
     </a>
-    Local Voice Pipeline
+    HA Voice IO
   </label>
   
     <div class="md-nav__source">
@@ -1010,17 +1010,17 @@
 <tbody>
 <tr>
 <td>Linux</td>
-<td><code>deploy/systemd/local-voice.service</code></td>
+<td><code>deploy/systemd/voice-io.service</code></td>
 <td>A user-level systemd service</td>
 </tr>
 <tr>
 <td>macOS</td>
-<td><code>deploy/launchd/io.localvoice.pipeline.plist</code></td>
+<td><code>deploy/launchd/io.havoice.voiceio.plist</code></td>
 <td>A per-user launch agent</td>
 </tr>
 <tr>
 <td>Windows</td>
-<td><code>deploy/windows/run-local-voice.ps1</code></td>
+<td><code>deploy/windows/run-voice-io.ps1</code></td>
 <td>A Task Scheduler action</td>
 </tr>
 </tbody>
@@ -1041,6 +1041,12 @@
 <h2 id="windows">Windows</h2>
 <p>Adjust the example PowerShell script to your checkout and private data folder. In Task Scheduler, run it only when the intended user is logged on so the process can use that user's audio device.</p>
 <h2 id="safe-updates">Safe updates</h2>
+<p>The package and CLI are named <code>voice-io</code>. When upgrading an existing installation,
+stop its listener and Studio first, install into a fresh virtual environment, and
+update executable paths and service names to the examples above. Disable the
+previous service units before enabling replacements so only one listener captures
+audio. Keep configuration, recordings, and response assets in their existing data
+folders; a package rename does not require renaming or regenerating them.</p>
 <p>Pin deployments to a reviewed release or commit. Before switching versions:</p>
 <ol>
 <li>Back up private configuration and recordings.</li>

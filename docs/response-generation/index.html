@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for local voice-command recognition, training, and deployment.">
+        <meta name="description" content="Home Assistant Voice IO documentation for recognition, training, response generation, and deployment.">
       
       
       
@@ -27,7 +27,7 @@
     
     
       
-        <title>Generate response audio - Local Voice Pipeline</title>
+        <title>Generate response audio - HA Voice IO</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Local Voice Pipeline" class="md-header__button md-logo" aria-label="Local Voice Pipeline" data-md-component="logo">
+    <a href=".." title="HA Voice IO" class="md-header__button md-logo" aria-label="HA Voice IO" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22 12-2 1-1 1-1-1-1 3-1-3-1 8-1-8-1 2-1-2-1 4-1-4-1 9-1-9-1 6-1-6-1 1-1-1-2-1 2-1 1-1 1 1 1-6 1 6 1-9 1 9 1-4 1 4 1-2 1 2 1-8 1 8 1-3 1 3 1-1 1 1z"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Local Voice Pipeline
+            HA Voice IO
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -228,13 +228,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Local Voice Pipeline" class="md-nav__button md-logo" aria-label="Local Voice Pipeline" data-md-component="logo">
+    <a href=".." title="HA Voice IO" class="md-nav__button md-logo" aria-label="HA Voice IO" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22 12-2 1-1 1-1-1-1 3-1-3-1 8-1-8-1 2-1-2-1 4-1-4-1 9-1-9-1 6-1-6-1 1-1-1-2-1 2-1 1-1 1 1 1-6 1 6 1-9 1 9 1-4 1 4 1-2 1 2 1-8 1 8 1-3 1 3 1-1 1 1z"/></svg>
 
     </a>
-    Local Voice Pipeline
+    HA Voice IO
   </label>
   
     <div class="md-nav__source">
@@ -1019,7 +1019,7 @@
 
 
 <h1 id="generate-response-audio">Generate response audio</h1>
-<p>Local Voice Pipeline can use the <a href="https://huggingface.co/spaces/hkchengrex/OmniVoice">OmniVoice Hugging Face Space</a> to create spoken response clips from a reference voice. The generated WAV files are normalized and published directly into the response library used by the listener.</p>
+<p>Home Assistant Voice IO can use the <a href="https://huggingface.co/spaces/hkchengrex/OmniVoice">OmniVoice Hugging Face Space</a> to create spoken response clips from a reference voice. The generated WAV files are normalized and published directly into the response library used by the listener.</p>
 <div class="admonition warning">
 <p class="admonition-title">Reference audio is uploaded</p>
 <p>Recognition stays local, but this optional generation workflow sends the selected reference recording and response text to the Hugging Face Space. Use a voice only with the speaker's permission. The command requires <code>--confirm-upload</code> so this cannot happen accidentally.</p>
@@ -1032,7 +1032,8 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"local-voice-pipeline[capture,voice-clone]"</span>
+<p>After a <code>voice-io</code> release is published:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"voice-io[capture,voice-clone]"</span>
 </code></pre></div>
 </div>
 </div>
@@ -1041,7 +1042,7 @@
 <p>Use a clean recording of roughly 3–10 seconds with one speaker, little background noise, and no music. A transcript of the reference is optional because the Space can transcribe it, but supplying the exact words usually removes ambiguity.</p>
 <h2 id="generate-one-response">Generate one response</h2>
 <p><code>--response</code> is a name from the <code>[responses]</code> section of <code>commands.toml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>local-voice<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>clone-response<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>voice-io<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>clone-response<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--response<span class="w"> </span>welcome<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--text<span class="w"> </span><span class="s2">"Welcome home"</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--reference<span class="w"> </span>voice-data/reference.wav<span class="w"> </span><span class="se">\</span>

@@ -47,7 +47,7 @@ Keep this folder out of a public repository. Voice recordings are personal data.
 ## 3. Check your microphone
 
 ```shell
-local-voice devices
+voice-io devices
 ```
 
 Note the number or name of the microphone you want to use. If your default device is correct, you can leave the device option unset.
@@ -55,7 +55,7 @@ Note the number or name of the microphone you want to use. If your default devic
 ## 4. Open the Training Studio
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings studio
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings studio
 ```
 
 Open `http://127.0.0.1:8765`. Choose a phrase, select a microphone, and record at least two examples. Ten varied examples per phrase is a better starting point for everyday use.
@@ -63,7 +63,7 @@ Open `http://127.0.0.1:8765`. Choose a phrase, select a microphone, and record a
 ## 5. Test one command
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings listen
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings listen
 ```
 
 A successful test prints the best match, its intent, and the confidence margin. A rejection is safe: no command is sent.
@@ -73,7 +73,7 @@ A successful test prints the best match, its intent, and the confidence margin. 
 After training at least two commands with two examples each:
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings calibrate
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings calibrate
 ```
 
 Use the suggested midpoint as a starting value for `recognizer.max_distance`. If command classes overlap, add more varied recordings or choose phrases that sound less alike.

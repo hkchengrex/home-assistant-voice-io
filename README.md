@@ -1,6 +1,6 @@
-# Local Voice Pipeline
+# Home Assistant Voice IO
 
-Local Voice Pipeline is an offline, language-independent voice-command system.
+Home Assistant Voice IO (HA Voice IO) is an offline, language-independent voice-command system.
 It learns commands from WAV recordings, compares speech with PCEN/MFCC features
 and dynamic time warping, provides a browser-based training studio, and can run
 an always-on start-phrase listener. It does not transcribe speech or require a
@@ -60,14 +60,18 @@ load, and external automation latency.
 
 ## Install
 
+The Python distribution and command are named `voice-io`. Python imports remain
+`ha_voice` for compatibility with existing integrations. Until a package release
+is published, install from this repository checkout:
+
 ```shell
-python -m pip install "local-voice-pipeline[capture]"
+python -m pip install -e ".[capture]"
 ```
 
 Add the optional Hugging Face client when generating cloned response audio:
 
 ```shell
-python -m pip install "local-voice-pipeline[capture,voice-clone]"
+python -m pip install -e ".[capture,voice-clone]"
 ```
 
 For development:
@@ -90,15 +94,15 @@ voice-data/
 List devices and open the training studio:
 
 ```shell
-local-voice devices
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings studio
+voice-io devices
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings studio
 ```
 
 Train at least two commands, calibrate, and run:
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings calibrate
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings run --assets voice-data/assets
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings calibrate
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings run --assets voice-data/assets
 ```
 
 The CLI performs recognition and local responses but intentionally has no
@@ -112,7 +116,7 @@ The optional OmniVoice integration can clone a response from a short reference
 recording and publish it into an existing response group:
 
 ```shell
-local-voice --config voice-data/commands.toml clone-response \
+voice-io --config voice-data/commands.toml clone-response \
   --response welcome \
   --text "Welcome home" \
   --reference voice-data/reference.wav \

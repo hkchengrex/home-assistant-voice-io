@@ -2,7 +2,7 @@
 
 ## No microphone appears
 
-Run `local-voice devices`. If the list is empty:
+Run `voice-io devices`. If the list is empty:
 
 - Confirm the operating system has granted microphone access to the terminal or Python process.
 - On Linux, confirm PipeWire or PulseAudio is running for the same user.
@@ -16,7 +16,7 @@ Start with the recordings before changing thresholds:
 1. Replay several saved takes in the Studio.
 2. Remove clipped, cut-off, unusually quiet, or mislabeled takes.
 3. Add examples from the real speaking distance and room.
-4. Run `local-voice calibrate` again.
+4. Run `voice-io calibrate` again.
 
 Then consider raising `max_distance` slightly or lowering `min_margin`. Looser settings can also increase false accepts, so test unrelated speech afterward.
 
@@ -42,7 +42,7 @@ When reporting a problem, include:
 
 - Operating system and Python version
 - CPU model
-- Template counts from `local-voice ... templates`
+- Template counts from `voice-io ... templates`
 - Whether matching uses the native or NumPy backend
 - Sanitized configuration thresholds
 - The printed distance, margin, duration, and matching time

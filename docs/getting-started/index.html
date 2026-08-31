@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for local voice-command recognition, training, and deployment.">
+        <meta name="description" content="Home Assistant Voice IO documentation for recognition, training, response generation, and deployment.">
       
       
       
@@ -27,7 +27,7 @@
     
     
       
-        <title>First command - Local Voice Pipeline</title>
+        <title>First command - HA Voice IO</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Local Voice Pipeline" class="md-header__button md-logo" aria-label="Local Voice Pipeline" data-md-component="logo">
+    <a href=".." title="HA Voice IO" class="md-header__button md-logo" aria-label="HA Voice IO" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22 12-2 1-1 1-1-1-1 3-1-3-1 8-1-8-1 2-1-2-1 4-1-4-1 9-1-9-1 6-1-6-1 1-1-1-2-1 2-1 1-1 1 1 1-6 1 6 1-9 1 9 1-4 1 4 1-2 1 2 1-8 1 8 1-3 1 3 1-1 1 1z"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Local Voice Pipeline
+            HA Voice IO
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -228,13 +228,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Local Voice Pipeline" class="md-nav__button md-logo" aria-label="Local Voice Pipeline" data-md-component="logo">
+    <a href=".." title="HA Voice IO" class="md-nav__button md-logo" aria-label="HA Voice IO" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22 12-2 1-1 1-1-1-1 3-1-3-1 8-1-8-1 2-1-2-1 4-1-4-1 9-1-9-1 6-1-6-1 1-1-1-2-1 2-1 1-1 1 1 1-6 1 6 1-9 1 9 1-4 1 4 1-2 1 2 1-8 1 8 1-3 1 3 1-1 1 1z"/></svg>
 
     </a>
-    Local Voice Pipeline
+    HA Voice IO
   </label>
   
     <div class="md-nav__source">
@@ -1099,20 +1099,20 @@
 </code></pre></div>
 <p>Keep this folder out of a public repository. Voice recordings are personal data.</p>
 <h2 id="3-check-your-microphone">3. Check your microphone</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>local-voice<span class="w"> </span>devices
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>voice-io<span class="w"> </span>devices
 </code></pre></div>
 <p>Note the number or name of the microphone you want to use. If your default device is correct, you can leave the device option unset.</p>
 <h2 id="4-open-the-training-studio">4. Open the Training Studio</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>local-voice<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>voice-data/recordings<span class="w"> </span>studio
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>voice-io<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>voice-data/recordings<span class="w"> </span>studio
 </code></pre></div>
 <p>Open <code>http://127.0.0.1:8765</code>. Choose a phrase, select a microphone, and record at least two examples. Ten varied examples per phrase is a better starting point for everyday use.</p>
 <h2 id="5-test-one-command">5. Test one command</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>local-voice<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>voice-data/recordings<span class="w"> </span>listen
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>voice-io<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>voice-data/recordings<span class="w"> </span>listen
 </code></pre></div>
 <p>A successful test prints the best match, its intent, and the confidence margin. A rejection is safe: no command is sent.</p>
 <h2 id="6-calibrate">6. Calibrate</h2>
 <p>After training at least two commands with two examples each:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>local-voice<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>voice-data/recordings<span class="w"> </span>calibrate
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>voice-io<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>voice-data/recordings<span class="w"> </span>calibrate
 </code></pre></div>
 <p>Use the suggested midpoint as a starting value for <code>recognizer.max_distance</code>. If command classes overlap, add more varied recordings or choose phrases that sound less alike.</p>
 <h2 id="next">Next</h2>

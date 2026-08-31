@@ -1,8 +1,10 @@
-# Local Voice Pipeline
+# Home Assistant Voice IO
 
-Local Voice Pipeline recognizes short voice commands from recorded examples.
+Home Assistant Voice IO (HA Voice IO) recognizes short voice commands from recorded examples.
 Recognition runs locally on Windows, macOS, and Linux. It does not transcribe
 arbitrary speech or answer open-ended questions.
+
+The package and command are named `voice-io`; Python integrations import `ha_voice`.
 
 ## Overview
 

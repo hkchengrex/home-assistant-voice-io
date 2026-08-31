@@ -3,7 +3,7 @@
 Global options come before the subcommand:
 
 ```text
-local-voice --config PATH --recordings PATH COMMAND [OPTIONS]
+voice-io --config PATH --recordings PATH COMMAND [OPTIONS]
 ```
 
 | Command | What it does |
@@ -21,10 +21,10 @@ local-voice --config PATH --recordings PATH COMMAND [OPTIONS]
 Use the built-in help for the exact options in your installed version:
 
 ```shell
-local-voice --help
-local-voice record --help
-local-voice clone-response --help
-local-voice run --help
+voice-io --help
+voice-io record --help
+voice-io clone-response --help
+voice-io run --help
 ```
 
 ## Special recording sets

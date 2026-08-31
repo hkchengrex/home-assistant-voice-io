@@ -1,4 +1,4 @@
-"""Offline, template-based voice command recognition and training."""
+"""Home Assistant Voice IO: voice recognition, training, and response generation."""
 
 from importlib.metadata import PackageNotFoundError, version
 
@@ -13,7 +13,7 @@ from .voice_generation import (
 )
 
 try:
-    __version__ = version("local-voice-pipeline")
+    __version__ = version("voice-io")
 except PackageNotFoundError:  # Source checkout without an installed distribution.
     __version__ = "0.1.0"
 

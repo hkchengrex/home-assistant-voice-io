@@ -43,7 +43,7 @@ def _project_path(value: str) -> Path:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="ha-voice", description="Train and test local voice-command matching"
+        prog="voice-io", description="Home Assistant Voice IO: train and recognize voice commands"
     )
     parser.add_argument("--config", type=_project_path, default=Path("commands.toml"))
     parser.add_argument(
@@ -218,7 +218,7 @@ def _print_result(result, config: AppConfig) -> int:
 def _classify_features(features: np.ndarray, config: AppConfig, recordings: Path) -> int:
     templates = load_templates(recordings, config.recognizer.sample_rate)
     if not templates:
-        raise SystemExit("No recordings found. Use 'ha-voice record <command>' first.")
+        raise SystemExit("No recordings found. Use 'voice-io record <command>' first.")
     result = classify(
         features,
         templates,
@@ -492,7 +492,7 @@ def _run_continuously(
             )
             control_server.start()
             print(
-                f"Local voice control listening on 127.0.0.1:{args.control_port}.",
+                f"HA Voice IO control listening on 127.0.0.1:{args.control_port}.",
                 flush=True,
             )
         while True:

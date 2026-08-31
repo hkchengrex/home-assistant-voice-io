@@ -6,9 +6,9 @@ The repository includes starting points under `deploy/`:
 
 | Platform | Example | Best for |
 | --- | --- | --- |
-| Linux | `deploy/systemd/local-voice.service` | A user-level systemd service |
-| macOS | `deploy/launchd/io.localvoice.pipeline.plist` | A per-user launch agent |
-| Windows | `deploy/windows/run-local-voice.ps1` | A Task Scheduler action |
+| Linux | `deploy/systemd/voice-io.service` | A user-level systemd service |
+| macOS | `deploy/launchd/io.havoice.voiceio.plist` | A per-user launch agent |
+| Windows | `deploy/windows/run-voice-io.ps1` | A Task Scheduler action |
 
 ## Common deployment shape
 
@@ -37,6 +37,13 @@ Copy the example property list to `~/Library/LaunchAgents/`, replace every place
 Adjust the example PowerShell script to your checkout and private data folder. In Task Scheduler, run it only when the intended user is logged on so the process can use that user's audio device.
 
 ## Safe updates
+
+The package and CLI are named `voice-io`. When upgrading an existing installation,
+stop its listener and Studio first, install into a fresh virtual environment, and
+update executable paths and service names to the examples above. Disable the
+previous service units before enabling replacements so only one listener captures
+audio. Keep configuration, recordings, and response assets in their existing data
+folders; a package rename does not require renaming or regenerating them.
 
 Pin deployments to a reviewed release or commit. Before switching versions:
 

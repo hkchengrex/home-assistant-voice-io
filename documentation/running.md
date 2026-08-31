@@ -7,7 +7,7 @@ Continuous mode watches the microphone, detects an utterance, classifies it, and
 This is the normal mode for an always-on device. Train the `_start_phrase` set, enable `[start_phrase]` in `commands.toml`, then run:
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings run --assets voice-data/assets
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings run --assets voice-data/assets
 ```
 
 The listener waits for the start phrase, plays its response if configured, and opens a short window for one command.
@@ -24,18 +24,18 @@ Before relying on it:
 Direct mode classifies every detected utterance and disables actions. It is useful for testing commands or collecting fresh examples:
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings run --direct
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings run --direct
 ```
 
 To save five new test utterances as examples for one command:
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings run --direct --capture-command lights_on --capture-count 5
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings run --direct --capture-command lights_on --capture-count 5
 ```
 
 ## Input and output devices
 
-Pass a device number or name with `--input-device` and `--output-device`. Run `local-voice devices` to see available inputs.
+Pass a device number or name with `--input-device` and `--output-device`. Run `voice-io devices` to see available inputs.
 
 If the listener misses quiet speech, inspect the microphone first. `--min-rms` and `--noise-multiplier` tune voice activity detection, but very aggressive settings can increase false triggers.
 

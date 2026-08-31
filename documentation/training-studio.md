@@ -5,7 +5,7 @@ The Studio is a local browser interface for building and improving a voice libra
 Start it with:
 
 ```shell
-local-voice --config voice-data/commands.toml --recordings voice-data/recordings studio
+voice-io --config voice-data/commands.toml --recordings voice-data/recordings studio
 ```
 
 Then open `http://127.0.0.1:8765`.

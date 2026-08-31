@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "local-voice-pipeline"
+name = "voice-io"
 version = "0.1.0"
-description = "Offline template-based voice recognition, training, and deployment"
+description = "Home Assistant Voice IO: voice recognition, training, response generation, and deployment"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -29,8 +29,7 @@ docs = ["mkdocs-material>=9.7,<10"]
 voice-clone = ["gradio-client>=2.6,<3"]
 
 [project.scripts]
-local-voice = "ha_voice.cli:main"
-ha-voice = "ha_voice.cli:main"
+voice-io = "ha_voice.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
