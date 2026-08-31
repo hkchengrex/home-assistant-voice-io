@@ -20,7 +20,7 @@
     <section class="voice-setup" aria-labelledby="voice-title">
       <h2 id="voice-title">Reference voice</h2>
       <div class="reference-grid">
-        <div><label for="reference-file">Reference recording</label><input id="reference-file" type="file" accept="audio/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.aif,.aiff"><button id="upload-reference" class="secondary-button">Save reference</button><p id="reference-info">Choose 1–20 seconds of audio, at most 10 MB (WAV, MP3, M4A/AAC, FLAC, OGG, WebM, or AIFF). Format, channels, and sample rate are converted automatically. Saving it here does not upload it to Hugging Face.</p><audio id="reference-audio" controls preload="none" hidden aria-label="Reference voice preview"></audio></div>
+        <div><label for="reference-file">Reference recording</label><input id="reference-file" type="file" accept="audio/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.aif,.aiff"><button id="upload-reference" class="secondary-button">Save reference</button><p id="reference-info">Choose 1–20 seconds of audio, at most 10 MB (WAV, MP3, M4A/AAC, FLAC, OGG, WebM, or AIFF).</p><audio id="reference-audio" controls preload="none" hidden aria-label="Reference voice preview"></audio></div>
         <div><label for="reference-text">Reference transcript <span class="muted">(optional)</span></label><textarea id="reference-text" rows="3" maxlength="4000" placeholder="The exact words spoken in the reference recording"></textarea><p class="muted">Leave empty for automatic transcription by the Space.</p></div>
       </div>
       <div class="primary-settings">
