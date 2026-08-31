@@ -14,7 +14,7 @@ voice-io --config PATH --recordings PATH COMMAND [OPTIONS]
 | `match WAV` | Classifies an existing WAV file. |
 | `templates` | Shows the number of recordings for each command. |
 | `calibrate` | Measures same-command and other-command distance separation. |
-| `clone-response` | Generates and publishes a cloned response through a Hugging Face Space. |
+| `clone-response` | Generates one cloned response with `--text`, or a batch with `--text-file`. |
 | `studio` | Starts the local Training Studio at port 8765 by default. |
 | `run` | Runs continuous wake-phrase or direct listening. |
 

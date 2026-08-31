@@ -80,7 +80,14 @@ def _parser() -> argparse.ArgumentParser:
         help="generate a private response clip with a Hugging Face Space",
     )
     clone.add_argument("--response", required=True, help="configured response group")
-    clone.add_argument("--text", required=True, help="text spoken in the new clip")
+    clone_text = clone.add_mutually_exclusive_group(required=True)
+    clone_text.add_argument("--text", help="text spoken in one new clip")
+    clone_text.add_argument(
+        "--text-file", type=_project_path,
+        help="UTF-8 file with 1–8 non-empty lines, generated as one batch",
+    )
+    clone.add_argument("--batch-size", type=int, default=4, help="GPU batch size for --text-file (1–8)")
+    clone.add_argument("--batch-api-name", default="/clone_batch")
     clone.add_argument("--reference", type=_project_path, required=True)
     clone.add_argument("--reference-text", default="")
     clone.add_argument("--language", default="Auto")
@@ -580,14 +587,18 @@ def main(
             )
         token = os.environ.get(args.token_env) if args.token_env else None
         try:
+            texts = (
+                args.text_file.read_text(encoding="utf-8-sig").splitlines()
+                if args.text_file is not None else None
+            )
             cloner = HuggingFaceSpaceVoiceCloner(
                 space_id=args.space,
                 api_name=args.api_name,
+                batch_api_name=args.batch_api_name,
                 token=token,
                 max_attempts=args.attempts,
             )
-            result = cloner.clone_to_library(
-                text=args.text,
+            generation_inputs = dict(
                 reference_audio=args.reference,
                 assets_dir=args.assets,
                 response_prefix=response_prefix,
@@ -602,9 +613,19 @@ def main(
                 ),
                 consent_to_upload=args.confirm_upload,
             )
-        except (ValueError, VoiceGenerationError) as exc:
+            if texts is not None:
+                result = cloner.clone_batch_to_library(
+                    texts=[text for text in texts if text.strip()],
+                    batch_size=args.batch_size, **generation_inputs,
+                )
+                for source in result.source_paths:
+                    print(f"Generated private source: {source}")
+                print(f"Batch timing: {result.remote_metrics}")
+            else:
+                result = cloner.clone_to_library(text=args.text, **generation_inputs)
+                print(f"Generated private source: {result.source_path}")
+        except (OSError, ValueError, VoiceGenerationError) as exc:
             raise SystemExit(str(exc)) from exc
-        print(f"Generated private source: {result.source_path}")
         print(
             f"Published {len(result.published)} clip(s) for response "
             f"'{args.response}'."

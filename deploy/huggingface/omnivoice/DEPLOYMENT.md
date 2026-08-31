@@ -15,6 +15,12 @@ For an existing Space, install the library's `voice-clone` extra, inspect the
 current Space commit, then run `python deploy.py --expected-revision COMMIT`.
 The script uploads only the two runtime files and refuses to overwrite changes
 made since inspection. Hugging Face rebuilds the Space after the upload.
+An environment `HF_TOKEN` overrides the saved login; unset a stale read-only
+environment token in the deploying shell if you have updated the saved login.
+
+The initial live batch deployment is
+`0d5c1b6d63f2b91e900d8ae3606b713545aae56e`. Benchmarks for that revision are recorded
+in `benchmarks/omnivoice-batch-2026-08-31.json` in the library repository.
 
 `/_clone_fn` and the voice-design API remain available. `/clone_batch` takes the
 same cloning controls, but its first argument is a JSON list of texts and its

@@ -2,6 +2,8 @@
 
 This page records recognition timings from a first-generation Microsoft Surface Go.
 
+For remote voice generation, see the separate [OmniVoice batch benchmark](response-generation.md#batch-benchmark).
+
 ## Result
 
 | | |

@@ -246,3 +246,51 @@ def test_save_training_sample_writes_listener_audio(tmp_path: Path) -> None:
     audio = load_wav(path)
     assert path.parent == tmp_path / "lights_off"
     assert np.allclose(audio.samples, samples, atol=2 / 32767)
+
+
+def test_parser_supports_response_batches():
+    args = _parser().parse_args([
+        "clone-response", "--response", "welcome", "--text-file", "responses.txt",
+        "--reference", "reference.wav", "--batch-size", "2", "--confirm-upload",
+    ])
+    assert args.text is None
+    assert args.text_file.name == "responses.txt"
+    assert args.batch_size == 2
+    assert args.batch_api_name == "/clone_batch"
+
+
+def test_parser_rejects_ambiguous_generation_mode():
+    with pytest.raises(SystemExit):
+        _parser().parse_args([
+            "clone-response", "--response", "welcome", "--text", "hello",
+            "--text-file", "responses.txt", "--reference", "reference.wav",
+        ])
+
+
+def test_cli_routes_text_file_to_batch_client(tmp_path, monkeypatch, capsys):
+    from types import SimpleNamespace
+    import ha_voice.cli as cli
+
+    captured = {}
+
+    class FakeCloner:
+        def __init__(self, **kwargs):
+            captured["init"] = kwargs
+
+        def clone_batch_to_library(self, **kwargs):
+            captured["batch"] = kwargs
+            return SimpleNamespace(source_paths=(tmp_path / "one.wav", tmp_path / "two.wav"),
+                                   published=(1, 2), remote_metrics={"count": 2})
+
+    monkeypatch.setattr(cli, "HuggingFaceSpaceVoiceCloner", FakeCloner)
+    lines = tmp_path / "lines.txt"
+    lines.write_text("\ufeffWelcome home.\n\nGood to see you.\n", encoding="utf-8")
+    cli.main([
+        "--config", str(ROOT / "commands.toml"), "clone-response", "--response", "welcome",
+        "--text-file", str(lines), "--reference", str(tmp_path / "reference.wav"),
+        "--batch-size", "2", "--confirm-upload",
+    ])
+    assert captured["batch"]["texts"] == ["Welcome home.", "Good to see you."]
+    assert captured["batch"]["response_prefix"] == "welcome"
+    assert captured["batch"]["batch_size"] == 2
+    assert "Published 2 clip(s)" in capsys.readouterr().out

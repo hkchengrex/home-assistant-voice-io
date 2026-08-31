@@ -17,7 +17,7 @@ for the guided setup, training, integration, and deployment guides.
 - Manage and test commands in a browser-based training studio.
 - Connect recognized commands to Home Assistant or another system.
 - Play spoken or audio responses.
-- Generate cloned response clips through the optional OmniVoice Space client.
+- Generate cloned response clips individually or in batches through the optional OmniVoice Space client.
 - Run continuously on Windows, macOS, or Linux.
 - Review failed recognitions and improve the training set.
 
@@ -128,6 +128,10 @@ The reference recording is uploaded to the configured Hugging Face Space. The
 default `hkchengrex/OmniVoice` Space is currently public and does not require a
 token. If authentication is enabled later, set `HF_TOKEN` in the environment;
 the token is never stored in the voice configuration.
+
+For a batch, replace `--text` with `--text-file response-lines.txt` (one clip per
+non-empty line, up to 8). The reference is processed once and the default GPU
+batch size is 4. See [batch usage and measured timings](https://hkchengrex.com/home-assistant-voice-io/response-generation/#generate-a-batch).
 
 ## Configuration boundary
 

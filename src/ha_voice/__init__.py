@@ -6,6 +6,7 @@ from .actions import ActionResult, CommandHandler
 from .config import AppConfig, CommandConfig, RecognizerConfig, load_config
 from .matcher import MatchResult, Template, classify, load_templates
 from .voice_generation import (
+    BatchCloneResult,
     CloneResult,
     CloneSettings,
     HuggingFaceSpaceVoiceCloner,
@@ -19,6 +20,7 @@ except PackageNotFoundError:  # Source checkout without an installed distributio
 
 __all__ = [
     "ActionResult",
+    "BatchCloneResult",
     "AppConfig",
     "CommandConfig",
     "CommandHandler",

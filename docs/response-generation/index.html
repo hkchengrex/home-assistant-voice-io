@@ -603,6 +603,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#generate-a-batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate a batch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -629,6 +640,17 @@
     <span class="md-ellipsis">
       
         Quality controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#batch-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch benchmark
       
     </span>
   </a>
@@ -966,6 +988,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#generate-a-batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate a batch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -992,6 +1025,17 @@
     <span class="md-ellipsis">
       
         Quality controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#batch-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch benchmark
       
     </span>
   </a>
@@ -1059,38 +1103,93 @@
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>└── welcome_1.wav            # normalized clip used for playback
 </code></pre></div>
 <p>Generate another line with the same response name to add variety. The response player chooses between the published clips without immediately repeating one.</p>
+<h2 id="generate-a-batch">Generate a batch</h2>
+<p>Put 1–8 lines in a UTF-8 file such as <code>welcome-lines.txt</code>, one clip per non-empty
+line. All lines share the reference voice, language, and generation settings:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Welcome home.
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Good to see you again.
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>I hope you had a pleasant day.
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>Make yourself comfortable.
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>voice-io<span class="w"> </span>--config<span class="w"> </span>voice-data/commands.toml<span class="w"> </span>clone-response<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>--response<span class="w"> </span>welcome<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>--text-file<span class="w"> </span>welcome-lines.txt<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>--reference<span class="w"> </span>voice-data/reference.wav<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>--reference-text<span class="w"> </span><span class="s2">"This is the voice reference."</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span>--language<span class="w"> </span>English<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span>--batch-size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span>--assets<span class="w"> </span>voice-data/assets<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span>--confirm-upload
+</code></pre></div>
+<p>The Space processes the reference once, then generates multiple lines together
+on the GPU. <code>--batch-size</code> controls how many lines are generated at once; the
+default is 4 and the maximum is 8. Output files follow input order and are added
+to the chosen response group. Existing source clips are preserved. The client
+validates and normalizes the whole batch before updating the library; do not
+run multiple publishers against the same library simultaneously.</p>
+<p>Batch requests are limited to 300 characters per line, 1200 total characters,
+and a 1–20 second reference. A supplied <code>--duration</code> may be at most 15 seconds
+per clip. For longer material, split the request. On GPU memory errors, reduce
+the batch size. The client does not silently switch to separate requests.</p>
+<p>The existing <code>--text</code> command still uses the original single-response endpoint.
+Custom Spaces need the <code>/clone_batch</code> extension for <code>--text-file</code>; its source
+and rebuild instructions are in
+<a href="https://github.com/hkchengrex/home-assistant-voice-io/tree/main/deploy/huggingface/omnivoice"><code>deploy/huggingface/omnivoice</code></a>.</p>
 <h2 id="authentication">Authentication</h2>
-<p>The default <code>hkchengrex/OmniVoice</code> Space is public and currently needs no token. If it becomes private or gated, set a Hugging Face access token in the environment:</p>
+<p>The default Space is public. Sign in with <code>hf auth login</code> to use your account's
+ZeroGPU allowance, including PRO benefits. The client uses the saved login when
+<code>HF_TOKEN</code> is not set. An environment token overrides the saved login, so an old
+<code>HF_TOKEN</code> can continue to select an older credential.</p>
+<p>For an explicit environment token:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Windows PowerShell</label><label for="__tabbed_2_2">macOS / Linux</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">$env:HF_TOKEN</span> <span class="p">=</span> <span class="s2">"your-token"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">$env:HF_TOKEN</span> <span class="p">=</span> <span class="s2">"your-token"</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HF_TOKEN</span><span class="o">=</span><span class="s2">"your-token"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HF_TOKEN</span><span class="o">=</span><span class="s2">"your-token"</span>
 </code></pre></div>
 </div>
 </div>
 </div>
-<p>Do not put the token in <code>commands.toml</code>, scripts, shell history, or the repository. The client reads <code>HF_TOKEN</code> at runtime and does not save it.</p>
+<p>Do not put actual tokens in <code>commands.toml</code>, scripts, shell history, or the
+repository. Prefer the interactive login. Running generation does not require
+repository write permission; deploying changes to the Space does.</p>
 <h2 id="python-api">Python API</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ha_voice</span><span class="w"> </span><span class="kn">import</span> <span class="n">CloneSettings</span><span class="p">,</span> <span class="n">HuggingFaceSpaceVoiceCloner</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">cloner</span> <span class="o">=</span> <span class="n">HuggingFaceSpaceVoiceCloner</span><span class="p">()</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">result</span> <span class="o">=</span> <span class="n">cloner</span><span class="o">.</span><span class="n">clone_to_library</span><span class="p">(</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">"Welcome home"</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">reference_audio</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/reference.wav"</span><span class="p">),</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">assets_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/assets"</span><span class="p">),</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">response_prefix</span><span class="o">=</span><span class="s2">"welcome"</span><span class="p">,</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">settings</span><span class="o">=</span><span class="n">CloneSettings</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">"English"</span><span class="p">),</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">consent_to_upload</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="p">)</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">source_path</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ha_voice</span><span class="w"> </span><span class="kn">import</span> <span class="n">CloneSettings</span><span class="p">,</span> <span class="n">HuggingFaceSpaceVoiceCloner</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">cloner</span> <span class="o">=</span> <span class="n">HuggingFaceSpaceVoiceCloner</span><span class="p">()</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">result</span> <span class="o">=</span> <span class="n">cloner</span><span class="o">.</span><span class="n">clone_to_library</span><span class="p">(</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">"Welcome home"</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">reference_audio</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/reference.wav"</span><span class="p">),</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="n">assets_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/assets"</span><span class="p">),</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="n">response_prefix</span><span class="o">=</span><span class="s2">"welcome"</span><span class="p">,</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="n">settings</span><span class="o">=</span><span class="n">CloneSettings</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">"English"</span><span class="p">),</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="n">consent_to_upload</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="p">)</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">source_path</span><span class="p">)</span>
 </code></pre></div>
+<p>For several clips in one response group:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">cloner</span><span class="o">.</span><span class="n">clone_batch_to_library</span><span class="p">(</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">texts</span><span class="o">=</span><span class="p">[</span><span class="s2">"Welcome home."</span><span class="p">,</span> <span class="s2">"Good to see you again."</span><span class="p">],</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">reference_audio</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/reference.wav"</span><span class="p">),</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">assets_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"voice-data/assets"</span><span class="p">),</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">response_prefix</span><span class="o">=</span><span class="s2">"welcome"</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">settings</span><span class="o">=</span><span class="n">CloneSettings</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">"English"</span><span class="p">),</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="n">consent_to_upload</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">)</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">source_paths</span><span class="p">)</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">remote_metrics</span><span class="p">)</span>
+</code></pre></div>
+<p>The Space's <code>/clone_batch</code> API returns a list of downloadable PCM16 WAV files
+and a JSON report containing <code>prompt_seconds</code>, <code>generation_seconds</code>, and
+<code>gpu_task_seconds</code>. These server timings exclude queueing and network transfers.
+The report also includes the GPU name, sample rate, and per-file duration/index.</p>
 <p>For a private Space, pass a token read from your environment to <code>HuggingFaceSpaceVoiceCloner(token=...)</code>.</p>
 <h2 id="quality-controls">Quality controls</h2>
 <p>The common controls are available as command options:</p>
@@ -1103,6 +1202,53 @@
 <li><code>--attempts</code>: total attempts after transient ZeroGPU or connection failures; the default is 2.</li>
 </ul>
 <p>The first request may take longer if the Space needs to wake or load the model.</p>
+<h2 id="batch-benchmark">Batch benchmark</h2>
+<p>Measured on 2026-08-31 UTC using four short English lines, 32 inference steps,
+a 4.87-second synthetic reference with a supplied transcript, and three runs per
+mode after one excluded single-request warm-up. Test order rotated between runs.
+The GPU reported <strong>NVIDIA RTX PRO 6000 Blackwell Server Edition MIG 2g.48gb</strong>.
+This is Hugging Face ZeroGPU hardware, not the Surface Go used for recognition.</p>
+<table>
+<thead>
+<tr>
+<th>Mode, four clips</th>
+<th style="text-align: right;">Median total request time</th>
+<th style="text-align: right;">Median model generation time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Four separate requests</td>
+<td style="text-align: right;">14.29 s</td>
+<td style="text-align: right;">Not instrumented</td>
+</tr>
+<tr>
+<td>One request, shared reference, generated one at a time</td>
+<td style="text-align: right;">10.93 s</td>
+<td style="text-align: right;">3.27 s</td>
+</tr>
+<tr>
+<td>One request, all four generated together</td>
+<td style="text-align: right;">8.12 s</td>
+<td style="text-align: right;">1.25 s</td>
+</tr>
+</tbody>
+</table>
+<p>Batching was <strong>1.76× faster end-to-end than four separate requests</strong>. Model
+generation was <strong>2.61× faster than shared-reference sequential generation</strong>.
+Total time includes uploads,
+queueing, GPU startup, and downloads, but not client initialization or local
+asset publishing. Each clip was about 2.1–2.6 seconds long. Individual batch
+requests ranged from 4.72 to 10.64 seconds; shared GPU availability matters.</p>
+<p>This small test validates speed and usable PCM files, not voice similarity or
+quality across languages and long texts. Start with batches of four short lines;
+larger or uneven-length batches may waste padding or need more memory. GPU
+assignments and queue times can change, so these are observations, not guarantees.</p>
+<p><a href="https://github.com/hkchengrex/home-assistant-voice-io/blob/main/benchmarks/omnivoice-batch-2026-08-31.json">Raw timings</a>
+and the repeatable
+<a href="https://github.com/hkchengrex/home-assistant-voice-io/blob/main/scripts/benchmark_voice_generation.py">benchmark script</a>
+are in the repository. Run the script with <code>--reference</code>, <code>--reference-text</code>,
+<code>--output</code>, and <code>--confirm-upload</code>; benchmark audio stays in your output folder.</p>
 
 
 

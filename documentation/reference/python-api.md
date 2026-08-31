@@ -6,6 +6,7 @@ The stable top-level API exposes configuration, templates, classification result
 from ha_voice import (
     ActionResult,
     AppConfig,
+    BatchCloneResult,
     CloneResult,
     CloneSettings,
     CommandConfig,
