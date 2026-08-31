@@ -19,6 +19,7 @@ import wave
 
 from .asset_processing import process_wav
 from .config import AppConfig
+from .reference_audio import normalize_reference_audio
 from .voice_generation import CloneSettings, HuggingFaceSpaceVoiceCloner, _atomic_copy
 
 
@@ -173,17 +174,9 @@ class ResponseStudio:
             self.data["settings"] = asdict(settings)
 
     def upload_reference(self, body):
-        if not 0 < len(body) <= 10 * 1024 * 1024:
-            raise ValueError("Reference must be a WAV file smaller than 10 MB")
-        try:
-            with wave.open(BytesIO(body), "rb") as audio:
-                channels, rate, count = audio.getnchannels(), audio.getframerate(), audio.getnframes()
-                if audio.getsampwidth() != 2 or audio.getcomptype() != "NONE" or channels not in (1, 2) or not 8000 <= rate <= 192000:
-                    raise ValueError("Use a mono or stereo 16-bit PCM WAV (8–192 kHz)")
-                if not 1 <= count / rate <= 20 or len(audio.readframes(count)) != count * channels * 2:
-                    raise ValueError("Use a complete reference recording of 1–20 seconds")
-        except (wave.Error, EOFError) as exc:
-            raise ValueError("Use a valid 16-bit PCM WAV reference") from exc
+        body = normalize_reference_audio(body)
+        with wave.open(BytesIO(body), "rb") as audio:
+            rate, count = audio.getframerate(), audio.getnframes()
         ref = {"id": uuid4().hex, "seconds": count / rate, "sample_rate": rate, "created_at": _now()}
         path = self.directory / "references" / f"{ref['id']}.wav"
         path.parent.mkdir(exist_ok=True)

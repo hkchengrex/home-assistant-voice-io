@@ -28,7 +28,7 @@
   async function api(action, payload, binary = false) {
     const options = payload === undefined ? {} : {
       method: "POST",
-      headers: {"X-Voice-IO": "response-studio", "Content-Type": binary ? "audio/wav" : "application/json"},
+      headers: {"X-Voice-IO": "response-studio", "Content-Type": binary ? "application/octet-stream" : "application/json"},
       body: binary ? payload : JSON.stringify(payload),
     };
     const response = await fetch(`/api/responses/${action}`, options);
@@ -277,7 +277,7 @@
   $("takes").addEventListener("input", toolbar);
   $("upload-reference").addEventListener("click", () => act(async () => {
     const file = $("reference-file").files[0];
-    if (!file || file.size > 10 * 1024 * 1024) throw new Error("Choose a WAV file smaller than 10 MB.");
+    if (!file || !file.size || file.size > 10 * 1024 * 1024) throw new Error("Choose an audio file of at most 10 MB.");
     await api("reference", file, true);
     $("reference-file").value = "";
     notice("Reference saved locally. Check its transcript before generating.");

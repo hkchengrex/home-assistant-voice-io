@@ -24,9 +24,9 @@ dependencies = ["numpy>=1.26,<3"]
 
 [project.optional-dependencies]
 capture = ["sounddevice>=0.5,<1"]
-dev = ["build>=1,<2", "pytest>=8,<9", "sounddevice>=0.5,<1"]
+dev = ["av>=18.1,<19", "build>=1,<2", "pytest>=8,<9", "sounddevice>=0.5,<1"]
 docs = ["mkdocs-material>=9.7,<10"]
-voice-clone = ["gradio-client>=2.6,<3"]
+voice-clone = ["av>=18.1,<19", "gradio-client>=2.6,<3"]
 
 [project.scripts]
 voice-io = "ha_voice.cli:main"

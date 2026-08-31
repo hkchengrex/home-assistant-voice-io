@@ -1,4 +1,5 @@
 from http.client import HTTPConnection
+from io import BytesIO
 import json
 from pathlib import Path
 import threading
@@ -6,6 +7,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import numpy as np
+import av
 import pytest
 
 from ha_voice.audio import Audio, encode_wav
@@ -104,3 +106,29 @@ def test_http_generate_review_publish_and_audio(server, tmp_path):
     assert studio.audio_path(chosen).exists()
     assert request(server, "/api/responses/audio/../secret")[0] == 400
     assert request(server, "/api/responses/missing")[0] == 404
+
+
+@pytest.mark.parametrize("container_format,codec", [("wav", "pcm_f32le"), ("mp3", "libmp3lame"), ("mp4", "aac")])
+def test_upload_converts_before_preview_and_failed_upload_preserves_reference(server, container_format, codec):
+    output = BytesIO()
+    with av.open(output, "w", format=container_format) as container:
+        stream = container.add_stream(codec, rate=48000)
+        stream.layout = "stereo"
+        frame = av.AudioFrame.from_ndarray(np.full((2, 96000), .1, dtype=np.float32), format="fltp", layout="stereo")
+        frame.sample_rate = 48000
+        for packet in [*stream.encode(frame), *stream.encode(None)]:
+            container.mux(packet)
+    status, result, _ = request(server, "/api/responses/reference", output.getvalue(),
+                                headers={"Content-Type": "application/octet-stream"})
+    assert status == 200
+    reference = result["state"]["reference"]
+    assert reference["sample_rate"] == 24000
+    preview = request(server, "/api/responses/reference")[1]
+    import wave
+    with wave.open(BytesIO(preview), "rb") as audio:
+        assert audio.getsampwidth() == 2 and audio.getnchannels() == 1
+        assert audio.getframerate() == 24000
+        assert audio.getnframes() / 24000 == pytest.approx(2, abs=.08)
+    assert request(server, "/api/responses/reference", b"broken audio")[0] == 400
+    assert request(server, "/api/responses/state")[1]["reference"] == reference
+    assert request(server, "/api/responses/reference")[1] == preview

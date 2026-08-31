@@ -36,7 +36,10 @@ examples start empty. Editing text never relabels old audio: each take retains i
 
 ## Generate and compare
 
-1. Save a reference recording: 1–20 seconds, 16-bit PCM WAV, mono or stereo, at most 10 MB.
+1. Save a reference recording: 1–20 seconds, at most 10 MB. WAV (including 24-bit,
+   32-bit, and floating-point), MP3, M4A/AAC, FLAC, OGG, WebM, and AIFF are supported.
+   Studio converts it locally to mono, 24 kHz, 16-bit PCM WAV; no manual conversion
+   is needed. Conversion preserves timing and does not trim the recording.
    Enter its exact transcript, or leave the transcript empty for automatic transcription.
 2. Set the voice controls and check the permission box. Saving a reference stays local;
    generating sends that recording and the selected text to the OmniVoice Hugging Face Space.
@@ -55,6 +58,13 @@ examples start empty. Editing text never relabels old audio: each take retains i
 Pending and rejected takes never enter playback. Existing response clips are not replaced.
 The player can choose among existing clips and your newly published takes. A managed listener
 is refreshed after publication; otherwise restart the listener yourself.
+
+Reference conversion uses PyAV, included in the `voice-clone` extra. Its wheels
+bundle the audio codecs on supported Windows, macOS, and Linux systems; a separate
+FFmpeg executable is not required. The converter accepts one audio track with up
+to eight channels, at 8–384 kHz. Invalid or over-limit uploads leave the previous
+reference unchanged. The saved preview and the reference sent for generation are
+the same converted WAV. This does not change the recognition recording format.
 
 ## Voice controls
 
