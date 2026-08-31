@@ -6,9 +6,12 @@ repo_name: hkchengrex/home-assistant-voice-io
 edit_uri: edit/main/documentation/
 docs_dir: documentation
 site_dir: docs
+hooks:
+  - scripts/docs_hooks.py
 
 theme:
   name: material
+  custom_dir: overrides
   font: false
   icon:
     logo: material/waveform
