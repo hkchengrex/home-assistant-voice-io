@@ -759,6 +759,12 @@ audio:focus-visible,
 
 .teach-rejection-button:disabled { opacity: 0.55; cursor: wait; }
 .dismiss-trigger-button { min-height: 36px; }
+.trigger-pair.single-clip { grid-template-columns: 1fr; }
+.teach-clip-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.teach-clip-controls select { width: 100%; min-width: 0; min-height: 36px; padding: 6px; }
+.trigger-clip p { font-size: 12px; margin-bottom: 0; }
+.missed-review-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+.missed-review-controls span { flex: 1 1 240px; color: var(--ink-soft); font-size: 12px; }
 
 .primary-button,
 .secondary-button,

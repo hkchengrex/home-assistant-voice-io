@@ -85,6 +85,8 @@ const elements = {
   triggerReviewSummary: document.querySelector("#trigger-review-summary"),
   triggerReviewList: document.querySelector("#trigger-review-list"),
   refreshTriggersButton: document.querySelector("#refresh-triggers-button"),
+  captureMissesButton: document.querySelector("#capture-misses-button"),
+  captureMissesStatus: document.querySelector("#capture-misses-status"),
 };
 
 const state = {
@@ -853,7 +855,7 @@ function diagnosticMetric(result) {
   return `score ${scoreText} · margin ${marginText}`;
 }
 
-function diagnosticClip(label, result, className = "") {
+function diagnosticClip(label, result, className = "", eventId = "", clipName = "") {
   const clip = document.createElement("div");
   clip.className = `trigger-clip ${className}`.trim();
   const heading = document.createElement("div");
@@ -870,6 +872,33 @@ function diagnosticClip(label, result, className = "") {
     audio.preload = "metadata";
     audio.src = result.audio_url;
     clip.append(audio);
+    if (result.taught_as) {
+      const taught = document.createElement("p");
+      taught.textContent = `Taught as: ${result.taught_as}`;
+      clip.append(taught);
+    } else {
+      const controls = document.createElement("div");
+      controls.className = "teach-clip-controls";
+      const select = document.createElement("select");
+      select.setAttribute("aria-label", `Teach ${label.toLowerCase()} as`);
+      select.append(new Option("Choose correct label…", ""));
+      for (const command of state.commands || []) {
+        if (command.is_negative || (command.is_start_phrase && !state.startPhraseEnabled)) continue;
+        select.append(new Option(command.is_start_phrase ? `Wake phrase: ${command.utterance}` : command.utterance, command.name));
+      }
+      const negative = (state.commands || []).find((command) => command.is_negative);
+      if (negative) select.append(new Option("Not a command", negative.name));
+      if (state.startPhraseEnabled) select.append(new Option("Not the wake phrase", "_not_start_phrase"));
+      const teach = document.createElement("button");
+      teach.type = "button";
+      teach.className = "secondary-button";
+      teach.textContent = "Teach as…";
+      teach.disabled = true;
+      select.addEventListener("change", () => { teach.disabled = !select.value; });
+      teach.addEventListener("click", () => teachDiagnostic(eventId, clipName, select.value, controls));
+      controls.append(select, teach);
+      clip.append(controls);
+    }
   } else {
     clip.classList.add("waiting");
   }
@@ -884,7 +913,7 @@ function renderDiagnostics(events, capacity) {
   if (!events.length) {
     const empty = document.createElement("p");
     empty.className = "trigger-empty";
-    empty.textContent = "Accepted Start phrases will appear here with the command that followed.";
+    empty.textContent = "Wake phrases and following commands appear here. Enable missed-attempt capture to review rejected speech too.";
     elements.triggerReviewList.append(empty);
     return;
   }
@@ -897,7 +926,7 @@ function renderDiagnostics(events, capacity) {
     head.className = "trigger-event-head";
     const title = document.createElement("strong");
     const predicted = event.command?.utterance || event.command?.best_utterance;
-    title.textContent = predicted ? `Start → ${predicted}` : "Start → waiting for command";
+    title.textContent = event.attempt ? "Review attempt" : predicted ? `Start → ${predicted}` : "Start → waiting for command";
     const timestamp = document.createElement("time");
     timestamp.dateTime = event.created_at || "";
     const created = new Date(event.created_at);
@@ -911,26 +940,26 @@ function renderDiagnostics(events, capacity) {
     const arrow = document.createElement("span");
     arrow.className = "trigger-arrow";
     arrow.textContent = "→";
-    pair.append(
-      diagnosticClip("Start accepted", event.start),
-      arrow,
-      diagnosticClip("Following command", event.command, "command"),
-    );
+    if (event.attempt) {
+      pair.classList.add("single-clip");
+      pair.append(diagnosticClip("Captured attempt", event.attempt, "", event.id, "attempt"));
+    } else {
+      pair.append(
+        diagnosticClip("Start accepted", event.start, "", event.id, "start"),
+        arrow,
+        diagnosticClip("Following command", event.command, "command", event.id, "command"),
+      );
+    }
     content.append(head, pair);
 
     const actions = document.createElement("div");
     actions.className = "trigger-actions";
-    const teach = document.createElement("button");
-    teach.type = "button";
-    teach.className = "teach-rejection-button";
-    teach.textContent = "Teach as false trigger";
-    teach.addEventListener("click", () => markDiagnosticFalse(event.id, card));
     const dismiss = document.createElement("button");
     dismiss.type = "button";
     dismiss.className = "secondary-button dismiss-trigger-button";
     dismiss.textContent = "Dismiss";
     dismiss.addEventListener("click", () => dismissDiagnostic(event.id, card));
-    actions.append(teach, dismiss);
+    actions.append(dismiss);
     card.append(content, actions);
     elements.triggerReviewList.append(card);
   });
@@ -945,10 +974,13 @@ async function loadDiagnostics({ force = false } = {}) {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || "Could not load recent triggers");
     const events = payload.events || [];
+    renderMissedReview(payload.review_mode);
     const signature = events
-      .map((event) => `${event.id}:${event.command?.audio_url || "pending"}`)
+      .map((event) => JSON.stringify([event.id, event.command?.audio_url, event.start?.taught_as, event.command?.taught_as, event.attempt?.taught_as]))
       .join("|");
-    if (force || signature !== state.diagnosticSignature) {
+    const interacting = elements.triggerReviewList.contains(document.activeElement)
+      || [...elements.triggerReviewList.querySelectorAll("audio")].some((audio) => !audio.paused);
+    if (force || (!interacting && signature !== state.diagnosticSignature)) {
       state.diagnosticSignature = signature;
       renderDiagnostics(events, Number(payload.capacity) || 20);
     }
@@ -958,23 +990,46 @@ async function loadDiagnostics({ force = false } = {}) {
   }
 }
 
-async function markDiagnosticFalse(eventId, card) {
-  if (!window.confirm("Teach both clips as examples that must be rejected?")) return;
-  card.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+async function teachDiagnostic(eventId, clip, label, controls) {
+  controls.querySelectorAll("button,select").forEach((control) => { control.disabled = true; });
   try {
     const response = await fetch(
-      `/api/diagnostics/${encodeURIComponent(eventId)}/false-trigger`,
-      { method: "POST" },
+      `/api/diagnostics/${encodeURIComponent(eventId)}/teach`,
+      { method: "POST", headers: {"Content-Type": "application/json", "X-Voice-IO": "diagnostic-review"}, body: JSON.stringify({clip, label}) },
     );
     const payload = await response.json();
-    if (!response.ok) throw new Error(payload.error || "Could not teach this rejection");
+    if (!response.ok) throw new Error(payload.error || "Could not teach this clip");
     state.diagnosticSignature = "";
+    await loadState({ preserveSelection: true });
     await loadDiagnostics({ force: true });
-    setMessage("False trigger added to the rejection library; the listener was reloaded.", "success");
+    setMessage(payload.listener_error || `Example saved as ${label}.${payload.listener_updated ? " Listener reloaded." : ""}`, payload.listener_error ? "error" : "success");
   } catch (error) {
-    card.querySelectorAll("button").forEach((button) => { button.disabled = false; });
+    controls.querySelectorAll("button,select").forEach((control) => { control.disabled = false; });
     setMessage(error.message, "error");
   }
+}
+
+function renderMissedReview(review) {
+  const active = Boolean(review?.active);
+  elements.captureMissesButton.setAttribute("aria-pressed", String(active));
+  elements.captureMissesButton.textContent = active ? "Stop capturing missed attempts" : "Capture missed attempts (5 min)";
+  elements.captureMissesStatus.textContent = active
+    ? `Capturing detected speech, including misses · ${Math.ceil(review.remaining_seconds / 60)} min left. Normal voice actions remain active.`
+    : "Uses the running listener. Normal voice actions remain active.";
+}
+
+async function toggleMissedReview() {
+  const enabled = elements.captureMissesButton.getAttribute("aria-pressed") !== "true";
+  elements.captureMissesButton.disabled = true;
+  try {
+    const response = await fetch("/api/diagnostics/review-mode", {
+      method: "POST", headers: {"Content-Type": "application/json", "X-Voice-IO": "diagnostic-review"}, body: JSON.stringify({enabled}),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "Could not change review mode");
+    renderMissedReview(payload.review_mode);
+  } catch (error) { setMessage(error.message, "error"); }
+  finally { elements.captureMissesButton.disabled = false; }
 }
 
 async function dismissDiagnostic(eventId, card) {
@@ -1598,6 +1653,7 @@ elements.continuousButton.addEventListener("click", toggleContinuous);
 elements.refreshTriggersButton.addEventListener("click", () => {
   loadDiagnostics({ force: true }).catch((error) => setMessage(error.message, "error"));
 });
+elements.captureMissesButton.addEventListener("click", toggleMissedReview);
 
 document.addEventListener("keydown", (event) => {
   if (["INPUT", "SELECT", "BUTTON", "AUDIO"].includes(document.activeElement?.tagName)) return;
@@ -1616,7 +1672,7 @@ window.addEventListener("resize", () => {
   else drawIdleWave();
 });
 
-loadState().catch((error) => {
+loadState().then(() => loadDiagnostics({ force: true })).catch((error) => {
   setMessage(error.message, "error");
   elements.description.textContent = "Check that the local studio server is running.";
 });

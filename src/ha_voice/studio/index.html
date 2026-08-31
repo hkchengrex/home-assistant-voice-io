@@ -123,6 +123,10 @@
             <button id="refresh-triggers-button" class="secondary-button" type="button">Refresh</button>
           </div>
           <div id="trigger-review-list" class="trigger-review-list" aria-live="polite"></div>
+          <div class="missed-review-controls">
+            <button id="capture-misses-button" class="secondary-button" type="button" aria-pressed="false">Capture missed attempts (5 min)</button>
+            <span id="capture-misses-status" role="status">Uses the running listener. Normal voice actions remain active.</span>
+          </div>
         </section>
 
         <section class="input-strip" aria-label="Microphone setup">

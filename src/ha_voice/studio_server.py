@@ -503,7 +503,7 @@ class StudioServer(ThreadingHTTPServer):
             payload["kind"] = "command"
             return payload
 
-        self.listener.start(device=device, matcher=direct_matcher)
+        self.listener.start(device=device, matcher=direct_matcher, capture_callback=self.trigger_captures.capture)
 
 
 class StudioHandler(BaseHTTPRequestHandler):
@@ -511,6 +511,48 @@ class StudioHandler(BaseHTTPRequestHandler):
 
     def log_message(self, message: str, *args: object) -> None:
         print(f"studio: {message % args}")
+
+    def _review_diagnostic(self, path: str) -> None:
+        host = self.headers.get("Host", "")
+        origin = self.headers.get("Origin")
+        try:
+            allowed = {"localhost", "127.0.0.1", "::1", self.server.server_address[0]}
+            safe = urlparse("http://" + host).hostname in allowed and (
+                origin is None or origin in {"http://" + host, "https://" + host})
+        except ValueError:
+            safe = False
+        if not safe or self.headers.get("X-Voice-IO") != "diagnostic-review":
+            # Drain small rejected bodies before closing to avoid a TCP reset
+            # obscuring the 403 response on Windows.
+            try:
+                rejected_size = int(self.headers.get("Content-Length", "0"))
+                if 0 < rejected_size <= 4096:
+                    self.rfile.read(rejected_size)
+            except ValueError:
+                pass
+            self._send_json(HTTPStatus.FORBIDDEN, {"error": "Use the local Studio to review recordings"})
+            return
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 0 < size <= 4096 or self.headers.get_content_type() != "application/json":
+                raise ValueError("Send a small JSON review request")
+            payload = json.loads(self.rfile.read(size))
+            if not isinstance(payload, dict):
+                raise ValueError("Invalid review request")
+            if path == "/api/diagnostics/review-mode":
+                result = {"review_mode": self.server.trigger_captures.set_review_mode(payload.get("enabled"))}
+            else:
+                if self.server.listener.snapshot()["running"]:
+                    self._send_json(HTTPStatus.CONFLICT, {"error": "Stop continuous testing before teaching a clip"})
+                    return
+                event_id = unquote(path[len("/api/diagnostics/"):-len("/teach")])
+                result = self.server.trigger_captures.teach(event_id, payload.get("clip"), payload.get("label"), self.server.app_config)
+                result.update(self.server.update_managed_listener())
+            self._send_json(HTTPStatus.OK, result)
+        except (ValueError, TypeError, KeyError, FileNotFoundError) as exc:
+            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
+        except OSError:
+            self._send_json(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": "Could not save the review; check disk space and permissions"})
 
     def _send_json(self, status: HTTPStatus, payload: dict[str, Any]) -> None:
         body = json.dumps(payload).encode("utf-8")
@@ -560,6 +602,7 @@ class StudioHandler(BaseHTTPRequestHandler):
                     "events": events,
                     "count": len(events),
                     "capacity": self.server.trigger_captures.max_events,
+                    "review_mode": self.server.trigger_captures.review_status(),
                 },
             )
             return
@@ -659,6 +702,9 @@ class StudioHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         path = urlparse(self.path).path
         if handle_response_request(self, path, "POST"):
+            return
+        if path == "/api/diagnostics/review-mode" or (path.startswith("/api/diagnostics/") and path.endswith("/teach")):
+            self._review_diagnostic(path)
             return
         if path == "/api/commands":
             self._create_command()
