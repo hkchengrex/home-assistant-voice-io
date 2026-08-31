@@ -1,5 +1,7 @@
 # Home Assistant Voice IO
 
+![Home Assistant Voice IO: a paper house with blue and teal acoustic waveforms](media/readme-cover.png)
+
 Home Assistant Voice IO (HA Voice IO) is an offline, language-independent voice-command system.
 It learns commands from WAV recordings, compares speech with PCEN/MFCC features
 and dynamic time warping, provides a browser-based training studio, and can run
