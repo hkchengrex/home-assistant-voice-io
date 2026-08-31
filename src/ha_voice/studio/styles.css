@@ -607,7 +607,7 @@ audio:focus-visible,
 .saved-takes {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(150px, 210px) minmax(360px, 1.5fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   align-items: center;
   gap: 20px;
   padding: 16px 20px;
@@ -622,6 +622,8 @@ audio:focus-visible,
   font-size: 12px;
 }
 
+.saved-takes > * { min-width: 0; }
+
 .take-field select {
   width: 100%;
   min-height: 42px;
@@ -632,17 +634,18 @@ audio:focus-visible,
   color: var(--ink);
 }
 
-.saved-takes audio { width: 100%; height: 38px; }
+.saved-takes audio { width: 100%; min-width: 0; max-width: 100%; height: 38px; }
 .saved-takes audio[hidden] { display: none; }
 .saved-takes.is-locked audio { opacity: 0.42; pointer-events: none; }
 .saved-actions {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 10px;
 }
 .saved-actions .secondary-button { white-space: nowrap; }
-.take-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+.take-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.take-buttons > button { flex: 1 1 100px; min-width: 0; white-space: normal; }
 
 .trigger-review {
   margin-top: 18px;
