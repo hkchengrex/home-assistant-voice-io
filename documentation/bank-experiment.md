@@ -85,3 +85,37 @@ Validate the frozen choice on a new recording session before deployment. Saved
 clip matching alone cannot measure complete-request recall. Extraction timings
 are measured on the execution host; the all-pairs run time is not per-request
 latency. Benchmark final candidate matching separately on the target hardware.
+
+## Follow-up comparisons
+
+With the same bank and saved matrices, run:
+
+```bash
+python -m ha_voice.bank_followup --recordings /path/to/recordings \
+  --config /path/to/commands.toml --archive backup --results /path/to/private-results
+python -m ha_voice.bank_metric --recordings /path/to/recordings \
+  --config /path/to/commands.toml --archive backup --results /path/to/private-results
+```
+
+The follow-up compares the current folders separately from the combined archive
+bank and evaluates 50/50 and 75/25 MFCC/PCEN distance fusion. Fusion means a
+weighted average of two DTW distances, not concatenated features. It adds a
+second match computation at inference; use it only if its accuracy benefit
+justifies that cost.
+
+The metric experiment replaces Euclidean frame costs with cosine costs from
+unit-normalized frames. It preserves the native DTW recurrence, band, and path
+normalization. A zero feature vector has cosine cost one, even against another
+zero vector; this is not a silence detector. The original score thresholds must
+not be reused unchanged. Both scripts verify the ordered audio identities before
+using cached matrices. Preserve the original configuration and source versions
+alongside the results; matching labels/settings must also remain fixed.
+
+Latency tests use eight positive recordings spanning the duration range, each
+repeated three times, with precomputed template features. They include query
+features and matching, but exclude capture, trimming, actions and playback.
+Euclidean timing reports full-search and production-style eight-per-folder
+shortlisting separately. Cosine timing uses full search. These bank benchmarks
+are not measurements of the exact deployed listener or independent accuracy
+samples. Evaluate precision and latency separately: a fast incorrect match is
+not an improvement.
