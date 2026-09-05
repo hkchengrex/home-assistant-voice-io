@@ -15,7 +15,40 @@ artifacts contain recording-linked data and belong in private storage, not the
 public repository. The evaluator writes a complete inventory, decoded-audio
 hashes, distance matrices, per-profile reports, and a combined report.
 
-## Corpus and folds
+## Current evaluation: repeated random holdouts
+
+Use `ha_voice.bank_random` to evaluate the saved distance matrices with random
+holdouts. Recording dates are not used as environment or session labels.
+
+```bash
+python -m ha_voice.bank_random --recordings /path/to/recordings \
+  --config /path/to/commands.toml --archive backup --results /path/to/private-results
+```
+
+This evaluates all five feature profiles, both cosine profiles, and both fusion
+profiles using three repeats of stratified random five-fold holdout. Seeds are
+20260905, 20260906 and 20260907. Splits are stratified by recording label; every
+recording is held out once per repeat. All variants use the same saved splits
+within a corpus scope. Exact duplicate decoded audio has already been removed,
+and the splitter rejects duplicate audio identities.
+
+Current-only and combined-bank scopes are reported separately. Thresholds use
+only training-set leave-one-out decisions, preserving the earlier fitting rule
+so the outer split method is the changed variable. No test labels tune thresholds.
+The vectorized scorer is tested against the original scalar scorer, including
+self exclusion and equivalent-intent aggregation.
+
+`random-holdout.json` contains results and per-repeat metrics;
+`random-splits.json` preserves the exact audio identities in every split.
+Aggregate counts are repeated test observations, not distinct recordings. Do not
+interpret their sum as independent samples when estimating uncertainty. Existing
+hardware latency measurements still apply because the features and distance
+computations have not changed.
+
+The date-based results described below are retained for historical comparison;
+they are not the primary evaluation protocol.
+
+## Corpus and original date-based folds
 
 The tool inventories every WAV recursively. It scores direct labeled folders
 and labeled folders one level beneath explicitly named archives. Accepted labels
