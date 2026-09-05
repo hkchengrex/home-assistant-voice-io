@@ -36,6 +36,7 @@ class VoiceSegmenter:
         min_rms: float = 0.004,
         noise_multiplier: float = 3.0,
         calibration_ms: int = 0,
+        speech_detector: Callable[[np.ndarray], bool] | None = None,
     ) -> None:
         self.sample_rate = sample_rate
         self.block_samples = round(sample_rate * block_ms / 1000)
@@ -44,6 +45,8 @@ class VoiceSegmenter:
         self.max_utterance_samples = round(sample_rate * max_utterance_seconds)
         self.min_rms = min_rms
         self.noise_multiplier = noise_multiplier
+        # Optional per-stream detector. The default preserves the energy baseline.
+        self.speech_detector = speech_detector
         self.noise_rms = 0.001
         self._calibration_samples_remaining = round(
             sample_rate * calibration_ms / 1000
@@ -68,7 +71,11 @@ class VoiceSegmenter:
             self._pre_roll.append(block)
             return []
         threshold = max(self.min_rms, self.noise_rms * self.noise_multiplier)
-        voiced = self.level_rms >= threshold
+        voiced = (
+            bool(self.speech_detector(block))
+            if self.speech_detector is not None
+            else self.level_rms >= threshold
+        )
         completed: list[SegmentedUtterance] = []
 
         if not self.active:
