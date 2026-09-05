@@ -165,7 +165,10 @@ def extract_pcen_cepstra(
 def extract_command_features(
     samples: np.ndarray,
     sample_rate: int = 16_000,
+    *,
+    smoothing: float = 0.05,
+    alpha: float = 0.98,
 ) -> np.ndarray:
     """Return far-field PCEN cepstra and speech-motion features."""
-    cepstra = extract_pcen_cepstra(samples, sample_rate)
+    cepstra = extract_pcen_cepstra(samples, sample_rate, smoothing=smoothing, alpha=alpha)
     return np.concatenate((cepstra, _delta(cepstra)), axis=1).astype(np.float32)

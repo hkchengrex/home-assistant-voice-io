@@ -74,3 +74,11 @@ The `[start_phrase]` section has its own distance, margin, and `top_k` because w
 ```
 
 The server binds to `127.0.0.1`. Treat it as local process coordination, not a network API.
+# Command PCEN tuning
+
+Optional `[recognizer]` keys `pcen_smoothing` (default 0.05, greater than zero
+and at most 1) and `pcen_alpha` (default 0.98, between 0 and 1) apply consistently
+to command templates, CLI queries, Studio and the command phase after a wake.
+Wake features are unchanged. Restart listeners after changing these settings so
+templates are regenerated from WAV files. Existing configurations keep the
+previous feature defaults. Recheck acceptance thresholds when tuning features.

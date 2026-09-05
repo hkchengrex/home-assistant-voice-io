@@ -147,7 +147,8 @@ def dtw_distance(first: np.ndarray, second: np.ndarray, band_ratio: float = 0.25
     return float(previous_cost[columns] / previous_steps[columns])
 
 
-def load_templates(recordings_dir: Path, sample_rate: int = 16_000) -> list[Template]:
+def load_templates(recordings_dir: Path, sample_rate: int = 16_000, *,
+                   smoothing: float = 0.05, alpha: float = 0.98) -> list[Template]:
     templates: list[Template] = []
     if not recordings_dir.exists():
         return templates
@@ -163,7 +164,7 @@ def load_templates(recordings_dir: Path, sample_rate: int = 16_000) -> list[Temp
             Template(
                 command=path.parent.name,
                 path=path,
-                features=extract_command_features(samples, audio.sample_rate),
+                features=extract_command_features(samples, audio.sample_rate, smoothing=smoothing, alpha=alpha),
             )
         )
     for path in sorted((recordings_dir / "_not_command").glob("*.wav")):
@@ -175,7 +176,7 @@ def load_templates(recordings_dir: Path, sample_rate: int = 16_000) -> list[Temp
             Template(
                 command="_not_command",
                 path=path,
-                features=extract_command_features(samples, audio.sample_rate),
+                features=extract_command_features(samples, audio.sample_rate, smoothing=smoothing, alpha=alpha),
             )
         )
     return templates

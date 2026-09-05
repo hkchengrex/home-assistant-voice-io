@@ -17,6 +17,12 @@ class RecognizerConfig:
     max_distance: float = 4.0
     min_margin: float = 0.12
     top_k: int = 3
+    pcen_smoothing: float = 0.05
+    pcen_alpha: float = 0.98
+
+    @property
+    def pcen_options(self) -> dict[str, float]:
+        return {"smoothing": self.pcen_smoothing, "alpha": self.pcen_alpha}
 
 
 @dataclass(frozen=True)
@@ -83,6 +89,8 @@ def load_config(path: Path) -> AppConfig:
         max_distance=float(recognizer_raw.get("max_distance", 4.0)),
         min_margin=float(recognizer_raw.get("min_margin", 0.12)),
         top_k=int(recognizer_raw.get("top_k", 3)),
+        pcen_smoothing=float(recognizer_raw.get("pcen_smoothing", 0.05)),
+        pcen_alpha=float(recognizer_raw.get("pcen_alpha", 0.98)),
     )
     if recognizer.sample_rate < 8_000:
         raise ValueError("recognizer.sample_rate must be at least 8000")
@@ -92,6 +100,10 @@ def load_config(path: Path) -> AppConfig:
         raise ValueError("recognizer.min_margin must be between 0 and 1")
     if recognizer.top_k < 1:
         raise ValueError("recognizer.top_k must be at least 1")
+    if not 0 < recognizer.pcen_smoothing <= 1:
+        raise ValueError("recognizer.pcen_smoothing must be between 0 and 1")
+    if not 0 <= recognizer.pcen_alpha <= 1:
+        raise ValueError("recognizer.pcen_alpha must be between 0 and 1")
 
     responses = {str(name): str(prefix) for name, prefix in raw.get("responses", {}).items()}
     for name, prefix in responses.items():

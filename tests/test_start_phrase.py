@@ -39,6 +39,20 @@ def _gate() -> StartPhraseGate:
     )
 
 
+def test_command_window_uses_configured_pcen():
+    from ha_voice.audio import trim_spoken_phrase
+    from ha_voice.features import extract_command_features
+    gate = _gate()
+    gate.pcen_options = {"smoothing": .1, "alpha": .95}
+    captured = []
+    gate.command_matcher = lambda features: (captured.append(features) or {"accepted": True, "command": "example"})
+    samples = np.random.default_rng(5).normal(0, .1, 16000).astype(np.float32)
+    gate.arm_command_window()
+    gate(samples)
+    np.testing.assert_array_equal(captured[0], extract_command_features(
+        trim_spoken_phrase(samples, 16000), 16000, **gate.pcen_options))
+
+
 def test_gate_opens_for_start_phrase_then_accepts_one_command() -> None:
     gate = _gate()
 

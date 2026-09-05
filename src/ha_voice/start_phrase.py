@@ -31,6 +31,7 @@ class StartPhraseGate:
         max_audio_seconds: float,
         min_command_audio_seconds: float,
         command_matcher: Callable[[np.ndarray], dict[str, Any]],
+        pcen_options: dict[str, float] | None = None,
     ) -> None:
         self.sample_rate = sample_rate
         self.start_label = start_label
@@ -44,6 +45,7 @@ class StartPhraseGate:
         self.max_audio_seconds = max_audio_seconds
         self.min_command_audio_seconds = min_command_audio_seconds
         self.command_matcher = command_matcher
+        self.pcen_options = pcen_options or {}
         self._command_deadline = 0.0
 
     @property
@@ -79,7 +81,7 @@ class StartPhraseGate:
                     "min_audio_seconds": self.min_command_audio_seconds,
                 }
             return self._process_command_features(
-                extract_command_features(trimmed, self.sample_rate)
+                extract_command_features(trimmed, self.sample_rate, **self.pcen_options)
             )
         if audio_seconds < self.min_audio_seconds:
             return {

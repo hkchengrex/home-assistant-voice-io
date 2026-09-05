@@ -283,7 +283,7 @@ def match_recording(
     if samples.size / audio.sample_rate < 0.2:
         raise ValueError("No clear speech was detected")
 
-    templates = load_templates(recordings_dir, config.recognizer.sample_rate)
+    templates = load_templates(recordings_dir, config.recognizer.sample_rate, **config.recognizer.pcen_options)
     if not templates:
         raise ValueError("Record command examples before testing")
     return match_samples(samples=samples, config=config, templates=templates)
@@ -300,7 +300,7 @@ def match_samples(
     samples = trim_silence(samples, config.recognizer.sample_rate)
     if samples.size / config.recognizer.sample_rate < 0.2:
         raise ValueError("No clear speech was detected")
-    features = extract_command_features(samples, config.recognizer.sample_rate)
+    features = extract_command_features(samples, config.recognizer.sample_rate, **config.recognizer.pcen_options)
     return match_features(features=features, config=config, templates=templates)
 
 
@@ -433,7 +433,7 @@ class StudioServer(ThreadingHTTPServer):
 
     def start_listener(self, device: int) -> None:
         templates = load_templates(
-            self.recordings_dir, self.app_config.recognizer.sample_rate
+            self.recordings_dir, self.app_config.recognizer.sample_rate, **self.app_config.recognizer.pcen_options
         )
         if not templates:
             raise ValueError("Record command examples before continuous listening")
@@ -464,6 +464,7 @@ class StudioServer(ThreadingHTTPServer):
                 )
 
             gate = StartPhraseGate(
+                pcen_options=self.app_config.recognizer.pcen_options,
                 sample_rate=self.app_config.recognizer.sample_rate,
                 start_label=self.app_config.start_phrase.name,
                 display_name=self.app_config.start_phrase.utterance,

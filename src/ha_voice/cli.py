@@ -229,7 +229,7 @@ def _print_result(result, config: AppConfig) -> int:
 
 
 def _classify_features(features: np.ndarray, config: AppConfig, recordings: Path) -> int:
-    templates = load_templates(recordings, config.recognizer.sample_rate)
+    templates = load_templates(recordings, config.recognizer.sample_rate, **config.recognizer.pcen_options)
     if not templates:
         raise SystemExit("No recordings found. Use 'voice-io record <command>' first.")
     result = classify(
@@ -349,7 +349,7 @@ def _run_continuously(
             raise SystemExit(f"Unknown capture command '{args.capture_command}'")
         if args.capture_count < 1:
             raise SystemExit("--capture-count must be at least 1")
-    command_templates = load_templates(recordings, config.recognizer.sample_rate)
+    command_templates = load_templates(recordings, config.recognizer.sample_rate, **config.recognizer.pcen_options)
     if not command_templates:
         raise SystemExit("No command recordings found.")
     listener = ContinuousListener(
@@ -452,6 +452,7 @@ def _run_continuously(
             return result
 
         gate = StartPhraseGate(
+            pcen_options=config.recognizer.pcen_options,
             sample_rate=config.recognizer.sample_rate,
             start_label=config.start_phrase.name,
             display_name=config.start_phrase.utterance,
@@ -686,15 +687,15 @@ def main(
             config.recognizer.sample_rate,
             _device(args.device),
         )
-        features = extract_command_features(audio.samples, audio.sample_rate)
+        features = extract_command_features(audio.samples, audio.sample_rate, **config.recognizer.pcen_options)
         raise SystemExit(_classify_features(features, config, recordings))
 
     if args.subcommand == "match":
         audio = load_wav(args.wav, config.recognizer.sample_rate)
-        features = extract_command_features(audio.samples, audio.sample_rate)
+        features = extract_command_features(audio.samples, audio.sample_rate, **config.recognizer.pcen_options)
         raise SystemExit(_classify_features(features, config, recordings))
 
-    templates = load_templates(recordings, config.recognizer.sample_rate)
+    templates = load_templates(recordings, config.recognizer.sample_rate, **config.recognizer.pcen_options)
     if args.subcommand == "templates":
         counts: dict[str, int] = {}
         for template in templates:
