@@ -106,6 +106,11 @@ def extract_pcen_cepstra(
     coefficient_count: int = 13,
     filter_count: int = 40,
     smoothing: float = 0.05,
+    *,
+    alpha: float = 0.98,
+    delta: float = 2.0,
+    root: float = 0.5,
+    epsilon: float = 1e-6,
 ) -> np.ndarray:
     """Return PCEN-normalized cepstra for far-field command matching.
 
@@ -118,6 +123,14 @@ def extract_pcen_cepstra(
         raise ValueError("samples must be a non-empty mono signal")
     if not 0.0 < smoothing <= 1.0:
         raise ValueError("smoothing must be between 0 and 1")
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError("alpha must be between 0 and 1")
+    if not np.isfinite(delta) or delta < 0:
+        raise ValueError("delta must be finite and non-negative")
+    if not 0.0 < root <= 1.0:
+        raise ValueError("root must be between 0 and 1")
+    if not np.isfinite(epsilon) or epsilon <= 0:
+        raise ValueError("epsilon must be finite and positive")
 
     frame_length = round(sample_rate * 0.025)
     hop_length = round(sample_rate * 0.010)
@@ -140,11 +153,8 @@ def extract_pcen_cepstra(
             + smoothing * mel_energy[frame_index]
         )
 
-    alpha = 0.98
-    delta = 2.0
-    root = 0.5
     pcen = (
-        mel_energy / np.power(1e-6 + smoother, alpha) + delta
+        mel_energy / np.power(epsilon + smoother, alpha) + delta
     ) ** root - delta**root
     cepstra = pcen @ _dct_basis(filter_count, coefficient_count).T
     mean = cepstra.mean(axis=0, keepdims=True)
