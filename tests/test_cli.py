@@ -17,6 +17,15 @@ from ha_voice.config import load_config
 ROOT = Path(__file__).parents[1]
 
 
+def test_run_vad_selection():
+    assert _parser().parse_args(["run"]).vad == "energy"
+    args = _parser().parse_args(["run", "--vad", "webrtc", "--vad-mode", "1"])
+    assert args.vad == "webrtc"
+    assert args.vad_mode == 1
+    with pytest.raises(SystemExit):
+        _parser().parse_args(["run", "--vad-mode", "4"])
+
+
 def test_format_listener_result_reports_start_phrase_scores() -> None:
     config = load_config(ROOT / "commands.toml")
     result = {

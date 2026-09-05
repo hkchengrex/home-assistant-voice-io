@@ -134,6 +134,10 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--output-device", default=None)
     run.add_argument("--min-rms", type=float, default=0.004)
     run.add_argument("--noise-multiplier", type=float, default=3.0)
+    run.add_argument("--vad", choices=("energy", "webrtc"), default="energy",
+                     help="Speech detector; webrtc requires the vad extra")
+    run.add_argument("--vad-mode", type=int, choices=range(4), default=1,
+                     help="WebRTC aggressiveness from 0 to 3")
     run.add_argument("--assets", type=_project_path, default=Path("assets"))
     run.add_argument(
         "--control-port",
@@ -353,7 +357,10 @@ def _run_continuously(
         heartbeat_timeout_seconds=None,
         min_rms=args.min_rms,
         noise_multiplier=args.noise_multiplier,
+        vad_backend=args.vad,
+        vad_mode=args.vad_mode,
     )
+    print(f"Voice detection: {args.vad}" + (f" mode {args.vad_mode}" if args.vad == "webrtc" else ""), flush=True)
     responses = (
         VoiceResponsePlayer(
             Path(args.assets).resolve(),

@@ -4,6 +4,17 @@ This optional offline experiment compares the existing energy detector with
 WebRTC modes 0 through 3. It never opens a microphone, runs recognition, plays
 audio, or invokes an action. Live listener and Studio defaults remain unchanged.
 
+## Optional live trial
+
+After installing `voice-io[capture,vad]`, select the detector explicitly with
+`voice-io run --vad webrtc --vad-mode 1`. The default remains `--vad energy`.
+The detector runs locally on the listener host, without a browser or a network
+service. The selection survives segmenter resets after response playback.
+RMS settings apply to the energy backend; WebRTC is not additionally gated by
+those thresholds. Onset, endpoint timing and final trimming remain unchanged.
+Revert by removing these two options or selecting `--vad energy` and restarting
+the listener. Test real noise: WebRTC can classify tones and hum as speech.
+
 Install with `uv sync --extra dev --extra vad`. Run:
 
 ```sh

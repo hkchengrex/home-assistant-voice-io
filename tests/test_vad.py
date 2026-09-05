@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from ha_voice.continuous import VoiceSegmenter
+from ha_voice.continuous import ContinuousListener, VoiceSegmenter
 from ha_voice.vad import WebRtcDetector
 
 
@@ -36,3 +36,22 @@ def test_webrtc_silence_and_input_validation():
     for samples in (np.zeros(319), np.zeros((320, 1)), np.full(320, np.nan)):
         with pytest.raises(ValueError):
             detector(samples)
+
+
+def test_listener_keeps_detector_choice_after_feedback_reset():
+    pytest.importorskip("webrtcvad")
+    listener = ContinuousListener(vad_backend="webrtc", vad_mode=1)
+    first = listener._new_segmenter(calibration_ms=1000)
+    replacement = listener._new_segmenter()
+    assert isinstance(first.speech_detector, WebRtcDetector)
+    assert isinstance(replacement.speech_detector, WebRtcDetector)
+    assert first.speech_detector is not replacement.speech_detector
+    assert not replacement.speech_detector(np.zeros(320))
+
+
+def test_listener_default_and_invalid_detector_selection():
+    assert ContinuousListener()._new_segmenter().speech_detector is None
+    with pytest.raises(ValueError):
+        ContinuousListener(vad_backend="unknown")
+    with pytest.raises(ValueError):
+        ContinuousListener(vad_mode=4)

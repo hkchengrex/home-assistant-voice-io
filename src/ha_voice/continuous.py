@@ -130,9 +130,17 @@ class ContinuousListener:
         heartbeat_timeout_seconds: float | None = 3.0,
         min_rms: float = 0.004,
         noise_multiplier: float = 3.0,
+        vad_backend: str = "energy",
+        vad_mode: int = 1,
     ) -> None:
+        if vad_backend not in ("energy", "webrtc"):
+            raise ValueError("Voice detector must be energy or webrtc")
+        if vad_mode not in (0, 1, 2, 3):
+            raise ValueError("WebRTC mode must be between 0 and 3")
         self.sample_rate = sample_rate
         self.heartbeat_timeout_seconds = heartbeat_timeout_seconds
+        self.vad_backend = vad_backend
+        self.vad_mode = vad_mode
         self.min_rms = min_rms
         self.noise_multiplier = noise_multiplier
         self._lock = threading.Lock()
@@ -225,11 +233,17 @@ class ContinuousListener:
         return provider() if provider else "listening"
 
     def _new_segmenter(self, *, calibration_ms: int = 0) -> VoiceSegmenter:
+        detector = None
+        if self.vad_backend == "webrtc":
+            from .vad import WebRtcDetector
+
+            detector = WebRtcDetector(self.sample_rate, self.vad_mode)
         return VoiceSegmenter(
             self.sample_rate,
             min_rms=self.min_rms,
             noise_multiplier=self.noise_multiplier,
             calibration_ms=calibration_ms,
+            speech_detector=detector,
         )
 
     def _run(self) -> None:
