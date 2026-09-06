@@ -10,13 +10,9 @@
       
       
       
-        <link rel="canonical" href="https://hkchengrex.com/home-assistant-voice-io/configuration/">
+        <link rel="canonical" href="https://hkchengrex.com/home-assistant-voice-io/bank-experiment/">
       
       
-        <link rel="prev" href="../response-studio/">
-      
-      
-        <link rel="next" href="../deployment/">
       
       
         
@@ -27,7 +23,7 @@
     
     
       
-        <title>Configuration - HA Voice IO</title>
+        <title>Full-bank feature and matching experiment - HA Voice IO</title>
       
     
     
@@ -74,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration" class="md-skip">
+        <a href="#full-bank-feature-and-matching-experiment" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configuration
+              Full-bank feature and matching experiment
             
           </span>
         </div>
@@ -425,8 +421,6 @@
       
   
   
-    
-  
   
   
     
@@ -439,11 +433,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -464,7 +458,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -563,37 +557,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configuration
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -609,103 +576,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#minimal-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Minimal example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#recognition-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Recognition settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Commands
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#start-phrase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Start phrase
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#calibration-and-negative-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calibration and negative examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-control-events" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local control events
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#command-pcen-tuning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Command PCEN tuning
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -972,10 +842,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#minimal-example" class="md-nav__link">
+  <a href="#current-evaluation-repeated-random-holdouts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimal example
+        Current evaluation: repeated random holdouts
       
     </span>
   </a>
@@ -983,10 +853,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recognition-settings" class="md-nav__link">
+  <a href="#corpus-and-original-date-based-folds" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recognition settings
+        Corpus and original date-based folds
       
     </span>
   </a>
@@ -994,10 +864,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
+  <a href="#controlled-comparisons" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Commands
+        Controlled comparisons
       
     </span>
   </a>
@@ -1005,10 +875,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#start-phrase" class="md-nav__link">
+  <a href="#reading-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Start phrase
+        Reading results
       
     </span>
   </a>
@@ -1016,32 +886,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#calibration-and-negative-examples" class="md-nav__link">
+  <a href="#follow-up-comparisons" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Calibration and negative examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-control-events" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local control events
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#command-pcen-tuning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Command PCEN tuning
+        Follow-up comparisons
       
     </span>
   </a>
@@ -1068,138 +916,129 @@
   
 
 
-<h1 id="configuration">Configuration</h1>
-<p><code>commands.toml</code> describes what can be recognized and how the local listener behaves. It should contain no credentials or private automation endpoints.</p>
-<h2 id="minimal-example">Minimal example</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[recognizer]</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">sample_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16000</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">max_distance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.6</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">min_margin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.03</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">top_k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">[start_phrase]</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">utterance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Hello house"</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">target_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">command_timeout_seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">[commands.lights_on]</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Turn on the room lights"</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">utterance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Lights on"</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">target_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="n">intent_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"day_lighting"</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"lights_on"</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="k">[responses]</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="n">lights_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"lights_on"</span>
+<h1 id="full-bank-feature-and-matching-experiment">Full-bank feature and matching experiment</h1>
+<p><code>ha_voice.bank_experiment</code> compares MFCC and PCEN representations and template
+aggregation on an entire labeled recording bank. It is offline and does not
+invoke a listener, playback, or actions.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>ha_voice.bank_experiment<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--recordings<span class="w"> </span>/path/to/recordings<span class="w"> </span>--config<span class="w"> </span>/path/to/commands.toml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--archive<span class="w"> </span>backup<span class="w"> </span>--output<span class="w"> </span>/path/to/private-results
 </code></pre></div>
-<h2 id="recognition-settings">Recognition settings</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Purpose</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>sample_rate</code></td>
-<td>Audio sample rate used for recordings and matching.</td>
-<td><code>16000</code></td>
-</tr>
-<tr>
-<td><code>max_distance</code></td>
-<td>Largest template distance that can be accepted. Lower is stricter.</td>
-<td><code>4.0</code></td>
-</tr>
-<tr>
-<td><code>min_margin</code></td>
-<td>Required separation from the runner-up. Higher is stricter.</td>
-<td><code>0.12</code></td>
-</tr>
-<tr>
-<td><code>top_k</code></td>
-<td>Number of nearest templates combined for each command.</td>
-<td><code>3</code></td>
-</tr>
-</tbody>
-</table>
-<p>Use <code>voice-io calibrate</code> to choose a sensible starting distance for your own recordings.</p>
-<h2 id="commands">Commands</h2>
-<p>Each <code>[commands.name]</code> entry has:</p>
+<p>Use an environment containing the compiled native DTW matcher. All evaluation
+artifacts contain recording-linked data and belong in private storage, not the
+public repository. The evaluator writes a complete inventory, decoded-audio
+hashes, distance matrices, per-profile reports, and a combined report.</p>
+<h2 id="current-evaluation-repeated-random-holdouts">Current evaluation: repeated random holdouts</h2>
+<p>Use <code>ha_voice.bank_random</code> to evaluate the saved distance matrices with random
+holdouts. Recording dates are not used as environment or session labels.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>ha_voice.bank_random<span class="w"> </span>--recordings<span class="w"> </span>/path/to/recordings<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--config<span class="w"> </span>/path/to/commands.toml<span class="w"> </span>--archive<span class="w"> </span>backup<span class="w"> </span>--results<span class="w"> </span>/path/to/private-results
+</code></pre></div>
+<p>This evaluates all five feature profiles, both cosine profiles, and both fusion
+profiles using three repeats of stratified random five-fold holdout. Seeds are
+20260905, 20260906 and 20260907. Splits are stratified by recording label; every
+recording is held out once per repeat. All variants use the same saved splits
+within a corpus scope. Exact duplicate decoded audio has already been removed,
+and the splitter rejects duplicate audio identities.</p>
+<p>Current-only and combined-bank scopes are reported separately. Thresholds use
+only training-set leave-one-out decisions, preserving the earlier fitting rule
+so the outer split method is the changed variable. No test labels tune thresholds.
+The vectorized scorer is tested against the original scalar scorer, including
+self exclusion and equivalent-intent aggregation.</p>
+<p><code>random-holdout.json</code> contains results and per-repeat metrics;
+<code>random-splits.json</code> preserves the exact audio identities in every split.
+Aggregate counts are repeated test observations, not distinct recordings. Do not
+interpret their sum as independent samples when estimating uncertainty. Existing
+hardware latency measurements still apply because the features and distance
+computations have not changed.</p>
+<p>The date-based results described below are retained for historical comparison;
+they are not the primary evaluation protocol.</p>
+<h2 id="corpus-and-original-date-based-folds">Corpus and original date-based folds</h2>
+<p>The tool inventories every WAV recursively. It scores direct labeled folders
+and labeled folders one level beneath explicitly named archives. Accepted labels
+are configured commands, the configured wake/calibration labels, <code>_not_command</code>,
+and <code>_not_start_phrase</code>. Unknown, retired, and withdrawn folders remain visible
+in the manifest but receive no guessed labels. Audit these before widening the
+scored corpus. Equal decoded audio is deduplicated; conflicting labels are
+excluded. This does not detect every near-duplicate or recut recording.</p>
+<p>A filename's initial YYYYMMDD defines its recording-day fold. Holding out whole
+days is a conservative session proxy; it is not verified session or speaker
+metadata. Unknown dates participate only in leave-one-audio-out ranking. A
+held-out positive whose intent has no remaining template is counted separately
+as unsupported, not silently counted as a recognized or ordinary failed class.</p>
+<p>Wake classification treats the wake as positive and other labeled speech as
+negative. Command classification uses configured action groups, not wording
+aliases as competing actions. Known wake clips and calibration clips are command
+rejection queries, but are not added to command rejection templates. A clip
+labeled only not-wake is excluded from command scoring because it might contain
+a valid command.</p>
+<h2 id="controlled-comparisons">Controlled comparisons</h2>
+<p>Capture and trimming behavior stay fixed. There are five feature profiles:</p>
 <ul>
-<li><code>utterance</code>: the phrase shown while recording.</li>
-<li><code>description</code>: a human-readable explanation.</li>
-<li><code>target_samples</code>: the desired number of examples.</li>
-<li><code>intent_group</code>: the logical action shared by alternate phrases.</li>
-<li><code>response</code>: an optional key from <code>[responses]</code>.</li>
+<li>Existing MFCC: 13 cepstra plus 13 deltas.</li>
+<li>Existing PCEN cepstra: 13 cepstra plus 13 deltas.</li>
+<li>MFCC with a per-utterance variance floor of one quarter of median coefficient
+  variance, to limit amplification of low-variance coefficients.</li>
+<li>PCEN with that same variance floor.</li>
+<li>PCEN with the floor and 24 cepstra plus 24 deltas, to test retained detail.</li>
 </ul>
-<p>Names, intent groups, and response keys may contain letters, numbers, <code>_</code>, and <code>-</code>.</p>
-<h2 id="start-phrase">Start phrase</h2>
-<p>The <code>[start_phrase]</code> section has its own distance, margin, and <code>top_k</code> because wake recognition is a different decision from command recognition. It also controls:</p>
-<ul>
-<li><code>command_timeout_seconds</code>: how long to wait for the command after waking.</li>
-<li><code>min_audio_seconds</code> and <code>max_audio_seconds</code>: accepted wake-phrase duration.</li>
-<li><code>min_command_audio_seconds</code>: shortest command evaluated after waking.</li>
-<li><code>response</code>: optional local acknowledgment.</li>
-</ul>
-<h2 id="calibration-and-negative-examples">Calibration and negative examples</h2>
-<p><code>[calibration]</code> describes unrelated phrases used to measure rejection. Record varied speech under <code>_not_command</code>; these are not commands and never trigger an action.</p>
-<h2 id="local-control-events">Local control events</h2>
-<p><code>[control_events]</code> can map loopback-only HTTP paths to response groups when <code>run --control-port</code> is enabled:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[control_events]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="s2">"/welcome"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"welcome"</span>
+<p>These are explicit hypotheses, not established improvements. PCEN parameters
+remain alpha 0.98, delta 2, exponent 0.5, and smoothing 0.05. FFT, mel filters,
+windows and hop sizes match the corresponding current frontend. The floor
+requires no statistics fitted on held-out examples.</p>
+<p>Each profile is scored with nearest-template aggregation k=1, 2 and 3. All
+eligible templates are compared using the existing DTW recurrence; there is no
+approximate shortlist. Therefore the baseline feature profile is a full-search
+reference, not an exact reproduction of production decisions. Both directions
+of every pair are computed rather than assuming tie handling is symmetric.</p>
+<h2 id="reading-results">Reading results</h2>
+<p>Leave-one-audio-out results are ranking diagnostics. Their acceptance fields
+are unused, because no acceptance threshold is fitted in that branch. Adjacent
+recordings can remain in the training pool, so these results can be optimistic.</p>
+<p>For each held-out day, distance/margin thresholds are chosen using only
+leave-one-audio-out predictions from the other days. The finite search maximizes
+correct training accepts subject to zero observed training wrong accepts. It
+uses 31 distance quantiles and margins 0, .01, .02, .03, .04, .06, .08, .12, .2,
+.3, .5. This deliberately conservative rule may reject many correct queries;
+zero training errors do not guarantee zero held-out errors. Wrong accepts
+include both non-requests accepted and requests assigned to the wrong intent.</p>
+<p>Held-out recall is correct accepts / represented positive queries. Precision is
+correct accepts / all accepts; a profile that accepts nothing has undefined
+precision. Its value depends on the evaluation bank's class balance and is not
+a household false-wake rate. Inspect per-day results and unsupported counts as
+well as aggregate metrics.</p>
+<p>Using these results to pick a feature profile makes the bank development data.
+Validate the frozen choice on a new recording session before deployment. Saved
+clip matching alone cannot measure complete-request recall. Extraction timings
+are measured on the execution host; the all-pairs run time is not per-request
+latency. Benchmark final candidate matching separately on the target hardware.</p>
+<h2 id="follow-up-comparisons">Follow-up comparisons</h2>
+<p>With the same bank and saved matrices, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>ha_voice.bank_followup<span class="w"> </span>--recordings<span class="w"> </span>/path/to/recordings<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--config<span class="w"> </span>/path/to/commands.toml<span class="w"> </span>--archive<span class="w"> </span>backup<span class="w"> </span>--results<span class="w"> </span>/path/to/private-results
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>python<span class="w"> </span>-m<span class="w"> </span>ha_voice.bank_metric<span class="w"> </span>--recordings<span class="w"> </span>/path/to/recordings<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--config<span class="w"> </span>/path/to/commands.toml<span class="w"> </span>--archive<span class="w"> </span>backup<span class="w"> </span>--results<span class="w"> </span>/path/to/private-results
 </code></pre></div>
-<p>The server binds to <code>127.0.0.1</code>. Treat it as local process coordination, not a network API.</p>
-<h2 id="command-pcen-tuning">Command PCEN tuning</h2>
-<p>PCEN reduces the impact of steady room noise, microphone gain, and speaker
-distance before matching a command. Leave its settings at their defaults unless
-recordings from the actual listening position show a repeatable problem. These
-optional <code>[recognizer]</code> keys apply consistently to command templates, CLI
-queries, Studio, and the command phase after a wake; wake-phrase features are
-unchanged.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[recognizer]</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># Defaults; change only one value at a time.</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">pcen_smoothing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">pcen_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.98</span>
-</code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Default and range</th>
-<th>Effect of increasing it</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pcen_smoothing</code></td>
-<td><code>0.05</code>; greater than 0 and at most 1</td>
-<td>Makes the energy baseline follow new sound levels more quickly. Lower values adapt more gradually.</td>
-</tr>
-<tr>
-<td><code>pcen_alpha</code></td>
-<td><code>0.98</code>; between 0 and 1</td>
-<td>Applies stronger normalization for recent per-frequency energy levels.</td>
-</tr>
-</tbody>
-</table>
-<p>Tune safely:</p>
-<ol>
-<li>Keep the defaults as a baseline and collect examples in the location and with
-   the microphone used for normal listening.</li>
-<li>Change one setting by a small amount, restart Studio or the listener so it
-   reloads the configuration and regenerates templates from the WAV files.</li>
-<li>Run <code>voice-io calibrate</code> and repeat real listening tests. Recheck
-   <code>recognizer.max_distance</code> and <code>recognizer.min_margin</code>, because PCEN changes
-   the distances on which those acceptance settings depend.</li>
-<li>Keep a change only when it improves the accepted/rejected behavior on
-   recordings not used to choose it. Otherwise restore the defaults.</li>
-</ol>
-<p>For a reproducible offline comparison of preset PCEN candidates on a labeled
-recording bank, see the <a href="../pcen-sweep/">PCEN parameter sweep</a>. Its results are
-experimental rather than universal recommendations.</p>
+<p>The follow-up compares the current folders separately from the combined archive
+bank and evaluates 50/50 and 75/25 MFCC/PCEN distance fusion. Fusion means a
+weighted average of two DTW distances, not concatenated features. It adds a
+second match computation at inference; use it only if its accuracy benefit
+justifies that cost.</p>
+<p>The metric experiment replaces Euclidean frame costs with cosine costs from
+unit-normalized frames. It preserves the native DTW recurrence, band, and path
+normalization. A zero feature vector has cosine cost one, even against another
+zero vector; this is not a silence detector. The original score thresholds must
+not be reused unchanged. Both scripts verify the ordered audio identities before
+using cached matrices. Preserve the original configuration and source versions
+alongside the results; matching labels/settings must also remain fixed.</p>
+<p>Latency tests use eight positive recordings spanning the duration range, each
+repeated three times, with precomputed template features. They include query
+features and matching, but exclude capture, trimming, actions and playback.
+Euclidean timing reports full-search and production-style eight-per-folder
+shortlisting separately. Cosine timing uses full search. These bank benchmarks
+are not measurements of the exact deployed listener or independent accuracy
+samples. Evaluate precision and latency separately: a fast incorrect match is
+not an improvement.</p>
 
 
 

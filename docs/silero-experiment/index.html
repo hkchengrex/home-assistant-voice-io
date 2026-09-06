@@ -10,13 +10,9 @@
       
       
       
-        <link rel="canonical" href="https://hkchengrex.com/home-assistant-voice-io/configuration/">
+        <link rel="canonical" href="https://hkchengrex.com/home-assistant-voice-io/silero-experiment/">
       
       
-        <link rel="prev" href="../response-studio/">
-      
-      
-        <link rel="next" href="../deployment/">
       
       
         
@@ -27,7 +23,7 @@
     
     
       
-        <title>Configuration - HA Voice IO</title>
+        <title>Silero continuous audio experiment - HA Voice IO</title>
       
     
     
@@ -74,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration" class="md-skip">
+        <a href="#silero-continuous-audio-experiment" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configuration
+              Silero continuous audio experiment
             
           </span>
         </div>
@@ -425,8 +421,6 @@
       
   
   
-    
-  
   
   
     
@@ -439,11 +433,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -464,7 +458,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -563,37 +557,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configuration
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -609,103 +576,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#minimal-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Minimal example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#recognition-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Recognition settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Commands
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#start-phrase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Start phrase
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#calibration-and-negative-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calibration and negative examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-control-events" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local control events
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#command-pcen-tuning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Command PCEN tuning
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -972,10 +842,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#minimal-example" class="md-nav__link">
+  <a href="#what-is-compared" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimal example
+        What is compared
       
     </span>
   </a>
@@ -983,65 +853,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recognition-settings" class="md-nav__link">
+  <a href="#interpretation-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recognition settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Commands
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#start-phrase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Start phrase
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#calibration-and-negative-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calibration and negative examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-control-events" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local control events
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#command-pcen-tuning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Command PCEN tuning
+        Interpretation limits
       
     </span>
   </a>
@@ -1068,138 +883,58 @@
   
 
 
-<h1 id="configuration">Configuration</h1>
-<p><code>commands.toml</code> describes what can be recognized and how the local listener behaves. It should contain no credentials or private automation endpoints.</p>
-<h2 id="minimal-example">Minimal example</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[recognizer]</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">sample_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16000</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">max_distance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.6</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">min_margin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.03</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">top_k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">[start_phrase]</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">utterance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Hello house"</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">target_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">command_timeout_seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">[commands.lights_on]</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Turn on the room lights"</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">utterance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Lights on"</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">target_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="n">intent_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"day_lighting"</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"lights_on"</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="k">[responses]</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="n">lights_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"lights_on"</span>
+<h1 id="silero-continuous-audio-experiment">Silero continuous audio experiment</h1>
+<p>The optional <code>silero</code> extra installs ONNX Runtime 1.22.1. Inference uses one CPU
+thread and requires no PyTorch, browser or cloud connection. Live listener defaults
+are unchanged; Silero is an offline experiment only.</p>
+<p>Download the official model on your trusted development machine from:</p>
+<p>https://raw.githubusercontent.com/snakers4/silero-vad/867c2aa692646a1f1de3e94a15c9dd9f614c0acb/src/silero_vad/data/silero_vad.onnx</p>
+<p>The adapter verifies SHA256
+<code>1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3</code>.
+The model is provided by <a href="https://github.com/snakers4/silero-vad/blob/867c2aa692646a1f1de3e94a15c9dd9f614c0acb/LICENSE">Silero under its MIT license</a>.
+Do not substitute another model without validating its interface and updating the
+pin. Runtime compatibility must be tested on the actual target CPU.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--frozen<span class="w"> </span>--extra<span class="w"> </span>silero
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>run<span class="w"> </span>--frozen<span class="w"> </span>--extra<span class="w"> </span>silero<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>ha_voice.continuous_vad_experiment<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--audio<span class="w"> </span>/private/session/continuous.wav<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--model<span class="w"> </span>/private/models/silero_vad.onnx<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--config<span class="w"> </span>/private/commands.toml<span class="w"> </span>--recordings<span class="w"> </span>/private/recordings<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--mute-intervals<span class="w"> </span>/private/session/mute-intervals.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--output<span class="w"> </span>/private/session/replay.json
 </code></pre></div>
-<h2 id="recognition-settings">Recognition settings</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Purpose</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>sample_rate</code></td>
-<td>Audio sample rate used for recordings and matching.</td>
-<td><code>16000</code></td>
-</tr>
-<tr>
-<td><code>max_distance</code></td>
-<td>Largest template distance that can be accepted. Lower is stricter.</td>
-<td><code>4.0</code></td>
-</tr>
-<tr>
-<td><code>min_margin</code></td>
-<td>Required separation from the runner-up. Higher is stricter.</td>
-<td><code>0.12</code></td>
-</tr>
-<tr>
-<td><code>top_k</code></td>
-<td>Number of nearest templates combined for each command.</td>
-<td><code>3</code></td>
-</tr>
-</tbody>
-</table>
-<p>Use <code>voice-io calibrate</code> to choose a sensible starting distance for your own recordings.</p>
-<h2 id="commands">Commands</h2>
-<p>Each <code>[commands.name]</code> entry has:</p>
-<ul>
-<li><code>utterance</code>: the phrase shown while recording.</li>
-<li><code>description</code>: a human-readable explanation.</li>
-<li><code>target_samples</code>: the desired number of examples.</li>
-<li><code>intent_group</code>: the logical action shared by alternate phrases.</li>
-<li><code>response</code>: an optional key from <code>[responses]</code>.</li>
-</ul>
-<p>Names, intent groups, and response keys may contain letters, numbers, <code>_</code>, and <code>-</code>.</p>
-<h2 id="start-phrase">Start phrase</h2>
-<p>The <code>[start_phrase]</code> section has its own distance, margin, and <code>top_k</code> because wake recognition is a different decision from command recognition. It also controls:</p>
-<ul>
-<li><code>command_timeout_seconds</code>: how long to wait for the command after waking.</li>
-<li><code>min_audio_seconds</code> and <code>max_audio_seconds</code>: accepted wake-phrase duration.</li>
-<li><code>min_command_audio_seconds</code>: shortest command evaluated after waking.</li>
-<li><code>response</code>: optional local acknowledgment.</li>
-</ul>
-<h2 id="calibration-and-negative-examples">Calibration and negative examples</h2>
-<p><code>[calibration]</code> describes unrelated phrases used to measure rejection. Record varied speech under <code>_not_command</code>; these are not commands and never trigger an action.</p>
-<h2 id="local-control-events">Local control events</h2>
-<p><code>[control_events]</code> can map loopback-only HTTP paths to response groups when <code>run --control-port</code> is enabled:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[control_events]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="s2">"/welcome"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"welcome"</span>
-</code></pre></div>
-<p>The server binds to <code>127.0.0.1</code>. Treat it as local process coordination, not a network API.</p>
-<h2 id="command-pcen-tuning">Command PCEN tuning</h2>
-<p>PCEN reduces the impact of steady room noise, microphone gain, and speaker
-distance before matching a command. Leave its settings at their defaults unless
-recordings from the actual listening position show a repeatable problem. These
-optional <code>[recognizer]</code> keys apply consistently to command templates, CLI
-queries, Studio, and the command phase after a wake; wake-phrase features are
-unchanged.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[recognizer]</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># Defaults; change only one value at a time.</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">pcen_smoothing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">pcen_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.98</span>
-</code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Default and range</th>
-<th>Effect of increasing it</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pcen_smoothing</code></td>
-<td><code>0.05</code>; greater than 0 and at most 1</td>
-<td>Makes the energy baseline follow new sound levels more quickly. Lower values adapt more gradually.</td>
-</tr>
-<tr>
-<td><code>pcen_alpha</code></td>
-<td><code>0.98</code>; between 0 and 1</td>
-<td>Applies stronger normalization for recent per-frequency energy levels.</td>
-</tr>
-</tbody>
-</table>
-<p>Tune safely:</p>
-<ol>
-<li>Keep the defaults as a baseline and collect examples in the location and with
-   the microphone used for normal listening.</li>
-<li>Change one setting by a small amount, restart Studio or the listener so it
-   reloads the configuration and regenerates templates from the WAV files.</li>
-<li>Run <code>voice-io calibrate</code> and repeat real listening tests. Recheck
-   <code>recognizer.max_distance</code> and <code>recognizer.min_margin</code>, because PCEN changes
-   the distances on which those acceptance settings depend.</li>
-<li>Keep a change only when it improves the accepted/rejected behavior on
-   recordings not used to choose it. Otherwise restore the defaults.</li>
-</ol>
-<p>For a reproducible offline comparison of preset PCEN candidates on a labeled
-recording bank, see the <a href="../pcen-sweep/">PCEN parameter sweep</a>. Its results are
-experimental rather than universal recommendations.</p>
+<p>Pass the deployment's <code>--min-rms</code> and <code>--noise-multiplier</code> to reproduce its energy
+baseline. A mute file is an array of objects with <code>start</code>, <code>end</code> (seconds from
+capture start) and <code>kind</code> (<code>wake</code> or <code>command</code>). It must come from observed speaker
+playback intervals. Omit it for a raw-audio sensitivity check; speaker responses
+can then be misinterpreted as speech. Never publish private audio or report files
+containing private template paths, hashes or labels in this repository.</p>
+<h2 id="what-is-compared">What is compared</h2>
+<p>Both detectors receive the same continuous 16 kHz mono recording in 20 ms frames.
+The Silero bridge waits for complete 512-sample windows and retains 64 samples of
+context and recurrent state. It is causal: no future frames are used. A probability
+is held between model updates, adding up to 32 ms update delay. Thresholds are 0.5
+for speech onset and 0.35 for release. There is no extra RMS gate for Silero.</p>
+<p>Both use the existing segmenter's 80 ms onset, 300 ms endpoint, 700 ms look-back,
+2.5 second cap, final trimming, and the frozen wake/command templates and
+thresholds. Duration-limited wake captures are rejected as in the listener.
+Every segment is also checked against a separate wake-only gate for diagnosis.
+The pipeline gate uses recording time so accelerated processing does not extend
+its command timeout. Observed playback intervals reset segmentation, and an
+already accepted wake's command window is refreshed after its observed reply.</p>
+<h2 id="interpretation-limits">Interpretation limits</h2>
+<p>This reuses actual listener algorithms but is not a complete live simulation.
+Matching queue delay is not modeled, and playback masking follows the original
+listener's timing rather than a candidate's hypothetical timing. Recordings
+contain the original listener's speaker audio. A candidate that detects a wake
+later can be affected by the original listener's already-started response.
+Check that replayed baseline events agree with the actual listener before using
+paired acceptance counts to claim improvement. Report raw and masked results
+when this affects conclusions.</p>
+<p>Frame processing time is not user response latency. Human-marked speech endpoints
+are needed for that. Small prompted sessions establish specific success/failure
+cases, not general recall, precision or false wakes per hour. Keep session-level
+holdouts for later evaluation. Compare actual wake and command outcomes and
+inspect split/truncated speech; do not use segment counts alone as success.</p>
 
 
 

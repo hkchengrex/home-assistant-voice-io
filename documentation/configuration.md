@@ -74,11 +74,39 @@ The `[start_phrase]` section has its own distance, margin, and `top_k` because w
 ```
 
 The server binds to `127.0.0.1`. Treat it as local process coordination, not a network API.
-# Command PCEN tuning
+## Command PCEN tuning
 
-Optional `[recognizer]` keys `pcen_smoothing` (default 0.05, greater than zero
-and at most 1) and `pcen_alpha` (default 0.98, between 0 and 1) apply consistently
-to command templates, CLI queries, Studio and the command phase after a wake.
-Wake features are unchanged. Restart listeners after changing these settings so
-templates are regenerated from WAV files. Existing configurations keep the
-previous feature defaults. Recheck acceptance thresholds when tuning features.
+PCEN reduces the impact of steady room noise, microphone gain, and speaker
+distance before matching a command. Leave its settings at their defaults unless
+recordings from the actual listening position show a repeatable problem. These
+optional `[recognizer]` keys apply consistently to command templates, CLI
+queries, Studio, and the command phase after a wake; wake-phrase features are
+unchanged.
+
+```toml
+[recognizer]
+# Defaults; change only one value at a time.
+pcen_smoothing = 0.05
+pcen_alpha = 0.98
+```
+
+| Setting | Default and range | Effect of increasing it |
+| --- | --- | --- |
+| `pcen_smoothing` | `0.05`; greater than 0 and at most 1 | Makes the energy baseline follow new sound levels more quickly. Lower values adapt more gradually. |
+| `pcen_alpha` | `0.98`; between 0 and 1 | Applies stronger normalization for recent per-frequency energy levels. |
+
+Tune safely:
+
+1. Keep the defaults as a baseline and collect examples in the location and with
+   the microphone used for normal listening.
+2. Change one setting by a small amount, restart Studio or the listener so it
+   reloads the configuration and regenerates templates from the WAV files.
+3. Run `voice-io calibrate` and repeat real listening tests. Recheck
+   `recognizer.max_distance` and `recognizer.min_margin`, because PCEN changes
+   the distances on which those acceptance settings depend.
+4. Keep a change only when it improves the accepted/rejected behavior on
+   recordings not used to choose it. Otherwise restore the defaults.
+
+For a reproducible offline comparison of preset PCEN candidates on a labeled
+recording bank, see the [PCEN parameter sweep](pcen-sweep.md). Its results are
+experimental rather than universal recommendations.
