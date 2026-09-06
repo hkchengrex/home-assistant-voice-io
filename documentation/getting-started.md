@@ -9,7 +9,7 @@ This guide covers installation, recording training examples, and testing a comma
 - A microphone
 - A quiet place for the first recording set
 
-The package is not on PyPI yet. While the repository is private, install it from a local checkout.
+The package is not on PyPI yet. Install it from a local checkout.
 
 ## 1. Create an environment
 
