@@ -169,6 +169,26 @@ class TriggerCaptureQueue:
             raise ValueError("Choose a saved audio clip")
         return self.recordings_dir / "_review_metadata" / f"{event_id}_{clip}.json"
 
+    def preserve_false_wake(self, source: Path, event_id: str, metadata: dict[str, Any]) -> Path:
+        """Keep the untrimmed reviewed capture outside the rolling event queue."""
+        self._event_dir(event_id)  # Validate the event identifier before constructing paths.
+        archive = self.root.parent / "labeled_false_wakes" / event_id
+        archive.mkdir(parents=True, exist_ok=True)
+        destination = archive / "original.wav"
+        body = source.read_bytes()
+        digest = hashlib.sha256(body).hexdigest()
+        try:
+            with destination.open("xb") as output:
+                output.write(body)
+        except FileExistsError:
+            if hashlib.sha256(destination.read_bytes()).hexdigest() != digest:
+                raise ValueError("Preserved false-wake audio differs; refusing to overwrite it")
+        self._write_json(archive / "metadata.json", {
+            "event_id": event_id, "label": "_not_start_phrase", "sha256": digest,
+            "event": metadata, "preserved_at": datetime.now(timezone.utc).isoformat(),
+        })
+        return destination
+
     def teach(self, event_id: str, clip: str, label: str, config: AppConfig) -> dict[str, Any]:
         """Teach exactly one clip; retain its sibling and make retries idempotent."""
         allowed = {*config.commands, config.calibration.name}
@@ -199,6 +219,8 @@ class TriggerCaptureQueue:
             review_path.parent.mkdir(parents=True, exist_ok=True)
             if destination.exists():
                 raise ValueError("A training take with this name already exists")
+            if label == "_not_start_phrase":
+                self.preserve_false_wake(source, event_id, metadata)
             created = False
             try:
                 with destination.open("xb") as output:
@@ -377,6 +399,8 @@ class TriggerCaptureQueue:
                 source = event_dir / source_name
                 if not source.is_file():
                     continue
+                if folder == "_not_start_phrase":
+                    self.preserve_false_wake(source, event_id, metadata)
                 destination = self.recordings_dir / folder / destination_name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, destination)

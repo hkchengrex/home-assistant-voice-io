@@ -334,3 +334,27 @@ def test_existing_template_is_never_overwritten(tmp_path, config):
     with pytest.raises(ValueError, match="already exists"):
         queue.teach(event, "start", "lights_on", config)
     assert destination.read_bytes() == b"existing"
+
+
+def test_false_wake_original_survives_trimming_and_queue_pruning(tmp_path, config):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, max_events=1)
+    samples = np.concatenate((np.zeros(8000, dtype=np.float32), _samples(), np.zeros(8000, dtype=np.float32)))
+    event = queue.capture(samples, _start_result())
+    original = queue.audio_path(event, "start.wav").read_bytes()
+    result = queue.teach(event, "start", "_not_start_phrase", config)
+    saved = tmp_path / "_diagnostics" / "labeled_false_wakes" / event / "original.wav"
+    assert saved.read_bytes() == original
+    assert (tmp_path / "_not_start_phrase" / result["filename"]).read_bytes() != original
+    queue.capture(_samples(), _start_result())
+    assert not (queue.root / event).exists()
+    assert saved.read_bytes() == original
+    assert queue.teach(event, "start", "_not_start_phrase", config)["already_taught"]
+
+
+def test_legacy_promotion_preserves_original_false_wake(tmp_path):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000)
+    event = queue.capture(_samples(), _start_result())
+    original = queue.audio_path(event, "start.wav").read_bytes()
+    queue.promote_false_trigger(event)
+    assert not (queue.root / event).exists()
+    assert (queue.root.parent / "labeled_false_wakes" / event / "original.wav").read_bytes() == original

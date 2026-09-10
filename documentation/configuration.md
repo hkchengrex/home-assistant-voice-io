@@ -110,3 +110,13 @@ Tune safely:
 For a reproducible offline comparison of preset PCEN candidates on a labeled
 recording bank, see the [PCEN parameter sweep](pcen-sweep.md). Its results are
 experimental rather than universal recommendations.
+
+## Original false-wake recordings
+
+When a diagnostic clip is taught as `_not_start_phrase`, its original untrimmed
+WAV and event metadata are preserved under
+`recordings/_diagnostics/labeled_false_wakes/<event-id>/`. These copies survive
+rolling diagnostic-queue pruning. Training still uses the trimmed labeled WAV;
+the preserved original is for replay and evaluation, not an extra template.
+Legacy false-trigger promotion also preserves its original wake clip. Users can
+remove a preserved event directory explicitly when it is no longer needed.
