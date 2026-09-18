@@ -36,6 +36,7 @@ lights_on = "lights_on"
 | `max_distance` | Largest template distance that can be accepted. Lower is stricter. | `4.0` |
 | `min_margin` | Required separation from the runner-up. Higher is stricter. | `0.12` |
 | `top_k` | Number of nearest templates combined for each command. | `3` |
+| `command_template_limit` | Candidates per command in Studio and the continuous listener. `0` compares every template with DTW; positive values use a faster approximate shortlist that can omit good matches. Does not change wake matching. | `8` |
 
 Use `voice-io calibrate` to choose a sensible starting distance for your own recordings.
 

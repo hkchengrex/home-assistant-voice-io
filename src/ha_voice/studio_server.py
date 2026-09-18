@@ -316,7 +316,7 @@ def match_features(
         max_distance=config.recognizer.max_distance,
         min_margin=config.recognizer.min_margin,
         top_k=config.recognizer.top_k,
-        default_template_limit=8,
+        default_template_limit=config.recognizer.command_template_limit or None,
     )
     intent_groups: dict[str, tuple[str, float]] = {}
     for command_name, score in result.per_command.items():

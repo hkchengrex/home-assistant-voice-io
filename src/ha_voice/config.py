@@ -19,6 +19,7 @@ class RecognizerConfig:
     top_k: int = 3
     pcen_smoothing: float = 0.05
     pcen_alpha: float = 0.98
+    command_template_limit: int = 8
 
     @property
     def pcen_options(self) -> dict[str, float]:
@@ -89,6 +90,7 @@ def load_config(path: Path) -> AppConfig:
         max_distance=float(recognizer_raw.get("max_distance", 4.0)),
         min_margin=float(recognizer_raw.get("min_margin", 0.12)),
         top_k=int(recognizer_raw.get("top_k", 3)),
+        command_template_limit=int(recognizer_raw.get("command_template_limit", 8)),
         pcen_smoothing=float(recognizer_raw.get("pcen_smoothing", 0.05)),
         pcen_alpha=float(recognizer_raw.get("pcen_alpha", 0.98)),
     )
@@ -98,6 +100,8 @@ def load_config(path: Path) -> AppConfig:
         raise ValueError("recognizer.max_distance must be positive")
     if not 0 <= recognizer.min_margin < 1:
         raise ValueError("recognizer.min_margin must be between 0 and 1")
+    if recognizer.command_template_limit < 0:
+        raise ValueError("recognizer.command_template_limit must be nonnegative; 0 uses every template")
     if recognizer.top_k < 1:
         raise ValueError("recognizer.top_k must be at least 1")
     if not 0 < recognizer.pcen_smoothing <= 1:
