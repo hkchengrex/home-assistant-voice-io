@@ -85,7 +85,7 @@ def dtw_distance(first: np.ndarray, second: np.ndarray, band_ratio: float = 0.25
     # Expand |a-b|^2 = |a|^2 + |b|^2 - 2ab so all frame-to-frame distances come
     # from one matrix product. Broadcasting a rows x columns x features
     # difference dominated full-bank matching on the Surface Go (157 ms versus
-    # 28 ms median). Float64 keeps the expansion within float32 rounding of the
+    # 49 ms median). Float64 keeps the expansion within float32 rounding of the
     # direct difference despite cancellation for near-identical frames.
     # Keep one canonical float32 distance representation for the native and
     # portable backends so scores do not depend on the backend or caller dtype.
