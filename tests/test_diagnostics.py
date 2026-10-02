@@ -358,3 +358,72 @@ def test_legacy_promotion_preserves_original_false_wake(tmp_path):
     queue.promote_false_trigger(event)
     assert not (queue.root / event).exists()
     assert (queue.root.parent / "labeled_false_wakes" / event / "original.wav").read_bytes() == original
+
+
+def _wake_attempt(config, **overrides) -> dict[str, object]:
+    name = config.start_phrase.name
+    result: dict[str, object] = {
+        "kind": "ignored",
+        "accepted": False,
+        "score": config.start_phrase.max_distance + 0.3,
+        "margin": 0.0,
+        "audio_seconds": 0.8,
+        "scores": {name: config.start_phrase.max_distance + 0.3, "_not_start_phrase": 9.0},
+    }
+    result.update(overrides)
+    return result
+
+
+def test_near_miss_wake_is_saved_when_an_accepted_wake_follows(tmp_path, config):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    short = config.start_phrase.min_audio_seconds - 0.05
+    assert queue.capture(_samples(), _wake_attempt(config)) is None
+    assert queue.capture(_samples(short), _wake_attempt(
+        config, rejection_reason="start_too_short", audio_seconds=short, scores={})) is None
+    assert queue.list_events() == []
+
+    wake = queue.capture(_samples(), _start_result())
+
+    events = queue.list_events()
+    assert events[0]["id"] == wake
+    attempts = events[1:]
+    assert len(attempts) == 2
+    assert all(event["auto_capture"]["wake_event"] == wake for event in attempts)
+    assert all(event["id"] < wake for event in attempts)
+    assert all(event["attempt"]["audio_url"].endswith("/attempt.wav") for event in attempts)
+
+
+@pytest.mark.parametrize("overrides", [
+    {"score": 9.0},
+    {"rejection_reason": "start_too_short", "audio_seconds": 0.2},
+    {"rejection_reason": "start_too_long", "audio_seconds": 2.4},
+    {"rejection_reason": "duration_limit", "audio_seconds": 2.5},
+])
+def test_distant_or_unrelated_rejections_are_not_saved(tmp_path, config, overrides):
+    if "score" in overrides:
+        overrides = {"scores": {config.start_phrase.name: overrides["score"]}}
+    else:
+        overrides = {**overrides, "scores": {}}
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.capture(_samples(), _wake_attempt(config, **overrides))
+    queue.capture(_samples(), _start_result())
+    assert [event.get("auto_capture") for event in queue.list_events()] == [None]
+
+
+def test_near_misses_expire_and_are_capped_per_wake(tmp_path, config, monkeypatch):
+    clock = [1000.0]
+    monkeypatch.setattr("ha_voice.diagnostics.time.monotonic", lambda: clock[0])
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.capture(_samples(), _wake_attempt(config))
+    clock[0] += 30.0
+    for _ in range(5):
+        queue.capture(_samples(), _wake_attempt(config))
+        clock[0] += 1.0
+    queue.capture(_samples(), _start_result())
+    attempts = [event for event in queue.list_events() if event.get("auto_capture")]
+    assert len(attempts) == 3
+    assert all(event["auto_capture"]["seconds_before_wake"] <= 3.0 for event in attempts)
+
+    # Saved near misses are consumed; a later wake does not save them again.
+    queue.capture(_samples(), _start_result())
+    assert len([event for event in queue.list_events() if event.get("auto_capture")]) == 3

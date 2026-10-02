@@ -65,8 +65,13 @@ recognition thresholds. Without a live listener, use Studio's **Start continuous
 Normal live voice actions remain active; Studio continuous tests do not run actions.
 
 Capture stops automatically after five minutes or when you click **Stop capturing
-missed attempts**. Closing the page does not extend the deadline. Only the latest
-20 events are kept in the rolling queue. Audio below the speech-detection threshold
+missed attempts**. Closing the page does not extend the deadline.
+
+Without the opt-in, likely retries are still kept. A rejected attempt that nearly
+passed is held in memory: its wake distance is within 0.5 of the cutoff, or its
+length is just outside the allowed range. If a wake is accepted within 20 seconds,
+up to three such attempts are saved with that wake. Other rejected speech is not
+saved. Only the latest 60 events are kept in the rolling queue. Audio below the speech-detection threshold
 cannot appear here: use **Record sample** if an attempt never appears.
 
 Labeling leaves the original clips in the queue and saves the reviewed take under

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from collections import deque
+from datetime import datetime, timedelta, timezone
 import json
 import hashlib
 import math
@@ -19,7 +20,14 @@ from .audio import Audio, encode_wav, load_wav, save_wav, trim_silence, trim_spo
 from .config import AppConfig
 
 
-DEFAULT_TRIGGER_CAPTURE_LIMIT = 20
+DEFAULT_TRIGGER_CAPTURE_LIMIT = 60
+# Rejected wake attempts this close to acceptance are held in memory and saved
+# only if an accepted wake follows soon after, which suggests a retry.
+NEAR_MISS_WINDOW_SECONDS = 20.0
+NEAR_MISS_LIMIT_PER_WAKE = 3
+NEAR_MISS_DISTANCE_SLACK = 0.5
+NEAR_MISS_SHORT_SLACK_SECONDS = 0.12
+NEAR_MISS_LONG_SLACK_SECONDS = 0.45
 _EVENT_ID = re.compile(r"\d{8}T\d{12}Z")
 _RESULT_FIELDS = (
     "kind",
@@ -97,6 +105,7 @@ class TriggerCaptureQueue:
         self.config = config
         self._lock = threading.Lock()
         self._pending_event_id: str | None = None
+        self._near_misses: deque[tuple[float, datetime, np.ndarray, dict[str, Any]]] = deque(maxlen=8)
         self.root.mkdir(parents=True, exist_ok=True)
         with self._lock:
             self._prune_locked()
@@ -283,6 +292,46 @@ class TriggerCaptureQueue:
                 return event_id
             now = datetime.now(timezone.utc)
 
+    def _event_id_at_locked(self, when: datetime) -> str:
+        while True:
+            event_id = when.strftime("%Y%m%dT%H%M%S%fZ")
+            if not (self.root / event_id).exists():
+                return event_id
+            when += timedelta(microseconds=1)
+
+    def _is_near_miss(self, result: dict[str, Any]) -> bool:
+        if self.config is None or not self.config.start_phrase.enabled:
+            return False
+        settings = self.config.start_phrase
+        reason = result.get("rejection_reason")
+        seconds = result.get("audio_seconds")
+        if reason == "start_too_short":
+            return isinstance(seconds, (int, float)) and seconds >= settings.min_audio_seconds - NEAR_MISS_SHORT_SLACK_SECONDS
+        if reason == "start_too_long":
+            return isinstance(seconds, (int, float)) and seconds <= settings.max_audio_seconds + NEAR_MISS_LONG_SLACK_SECONDS
+        if reason:
+            return False
+        score = (result.get("scores") or {}).get(settings.name)
+        return (isinstance(score, (int, float)) and math.isfinite(score)
+                and score <= settings.max_distance + NEAR_MISS_DISTANCE_SLACK)
+
+    def _save_near_misses_locked(self, wake_event_id: str) -> None:
+        """Save recent near-miss attempts that preceded an accepted wake."""
+        now = time.monotonic()
+        recent = [miss for miss in self._near_misses if now - miss[0] <= NEAR_MISS_WINDOW_SECONDS]
+        self._near_misses.clear()
+        for heard_at, created_at, samples, result in recent[-NEAR_MISS_LIMIT_PER_WAKE:]:
+            event_id = self._event_id_at_locked(created_at)
+            event_dir = self.root / event_id
+            event_dir.mkdir(parents=True)
+            save_wav(event_dir / "attempt.wav", Audio(samples, self.sample_rate))
+            self._write_metadata(event_dir, {"id": event_id,
+                "created_at": created_at.isoformat(),
+                "start": None, "command": None,
+                "attempt": _result_metadata(result, "attempt.wav", self.config),
+                "auto_capture": {"reason": "preceded_accepted_wake", "wake_event": wake_event_id,
+                                 "seconds_before_wake": round(now - heard_at, 2)}})
+
     def capture(self, samples: np.ndarray, result: dict[str, Any]) -> str | None:
         """Capture an accepted Start or attach the following command."""
         kind = result.get("kind")
@@ -291,6 +340,9 @@ class TriggerCaptureQueue:
                 # An ignored wake attempt starts a new interaction, not the old pair.
                 self._close_pending_locked()
                 if not self.review_status()["active"]:
+                    if kind == "ignored" and self._is_near_miss(result):
+                        self._near_misses.append((time.monotonic(), datetime.now(timezone.utc),
+                                                  np.array(samples, dtype=np.float32), dict(result)))
                     return None
                 event_id = self._new_event_id_locked()
                 event_dir = self.root / event_id
@@ -306,6 +358,7 @@ class TriggerCaptureQueue:
             with self._lock:
                 self._close_pending_locked()
                 event_id = self._new_event_id_locked()
+                self._save_near_misses_locked(event_id)
                 event_dir = self.root / event_id
                 event_dir.mkdir(parents=True)
                 save_wav(
