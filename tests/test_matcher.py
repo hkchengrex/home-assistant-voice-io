@@ -14,6 +14,10 @@ from ha_voice.matcher import (
 )
 from ha_voice.audio import Audio, save_wav
 
+# The matcher expands squared distances while the reference subtracts frames
+# directly; both round to float32, so they agree to float32 precision.
+REFERENCE_RTOL = 1e-6
+
 
 def _features(seed: int, frames: int = 30) -> np.ndarray:
     random = np.random.default_rng(seed)
@@ -53,7 +57,8 @@ def _reference_dtw_distance(
 
 def test_dtw_identity_is_zero() -> None:
     features = _features(1)
-    assert dtw_distance(features, features) == 0.0
+    # The expanded |a|^2 + |b|^2 - 2ab form leaves float rounding residue.
+    assert dtw_distance(features, features) < 1e-6
 
 
 def test_dtw_handles_different_speeds() -> None:
@@ -69,8 +74,8 @@ def test_optimized_dtw_matches_reference() -> None:
     assert np.isclose(
         dtw_distance(first, second),
         _reference_dtw_distance(first, second),
-        rtol=1e-12,
-        atol=1e-12,
+        rtol=REFERENCE_RTOL,
+        atol=1e-9,
     )
 
 
@@ -82,8 +87,8 @@ def test_vectorized_dtw_matches_reference_across_lengths() -> None:
         assert np.isclose(
             dtw_distance(first, second),
             _reference_dtw_distance(first, second),
-            rtol=1e-12,
-            atol=1e-12,
+            rtol=REFERENCE_RTOL,
+            atol=1e-9,
         )
 
 
