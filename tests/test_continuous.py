@@ -1,6 +1,11 @@
+import sys
+import threading
+import time
+import types
+
 import numpy as np
 
-from ha_voice.continuous import VoiceSegmenter
+from ha_voice.continuous import ContinuousListener, VoiceSegmenter
 
 
 def _blocks(value: float, count: int, block_size: int = 320) -> list[np.ndarray]:
@@ -100,3 +105,67 @@ def test_segmenter_pre_roll_recovers_quiet_first_word() -> None:
 
     assert len(output) == 1
     assert np.any(np.isclose(output[0].samples, 0.005))
+
+
+class _FakeInputStream:
+    """Stand-in for sounddevice.InputStream that optionally delivers audio."""
+
+    def __init__(self, *, deliver: bool, blocksize: int, callback, **_: object) -> None:
+        self.deliver = deliver
+        self.blocksize = blocksize
+        self.callback = callback
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._feed, daemon=True)
+
+    def _feed(self) -> None:
+        block = np.zeros((self.blocksize, 1), dtype=np.float32)
+        while not self._stop.wait(0.02):
+            self.callback(block, self.blocksize, None, None)
+
+    def __enter__(self) -> "_FakeInputStream":
+        if self.deliver:
+            self._thread.start()
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self._stop.set()
+
+
+def _fake_sounddevice(monkeypatch, *, deliver: bool) -> None:
+    module = types.ModuleType("sounddevice")
+    module.InputStream = lambda **kwargs: _FakeInputStream(deliver=deliver, **kwargs)
+    monkeypatch.setitem(sys.modules, "sounddevice", module)
+
+
+def _wait_until_stopped(listener: ContinuousListener, seconds: float) -> dict:
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        snapshot = listener.snapshot()
+        if not snapshot["running"]:
+            return snapshot
+        time.sleep(0.02)
+    return listener.snapshot()
+
+
+def test_listener_stops_when_microphone_goes_silent(monkeypatch) -> None:
+    _fake_sounddevice(monkeypatch, deliver=False)
+    listener = ContinuousListener(heartbeat_timeout_seconds=None, audio_timeout_seconds=0.3)
+    listener.start(device=None, matcher=lambda samples: {})
+
+    snapshot = _wait_until_stopped(listener, 3.0)
+    listener.stop()
+
+    assert snapshot["running"] is False
+    assert "no audio" in snapshot["error"]
+
+
+def test_listener_keeps_running_while_audio_arrives(monkeypatch) -> None:
+    _fake_sounddevice(monkeypatch, deliver=True)
+    listener = ContinuousListener(heartbeat_timeout_seconds=None, audio_timeout_seconds=0.3)
+    listener.start(device=None, matcher=lambda samples: {})
+
+    snapshot = _wait_until_stopped(listener, 1.0)
+    listener.stop()
+
+    assert snapshot["running"] is True
+    assert snapshot["error"] is None

@@ -132,13 +132,18 @@ class ContinuousListener:
         noise_multiplier: float = 3.0,
         vad_backend: str = "energy",
         vad_mode: int = 1,
+        audio_timeout_seconds: float | None = 5.0,
     ) -> None:
+        if audio_timeout_seconds is not None and audio_timeout_seconds <= 0:
+            raise ValueError("Audio timeout must be positive")
         if vad_backend not in ("energy", "webrtc"):
             raise ValueError("Voice detector must be energy or webrtc")
         if vad_mode not in (0, 1, 2, 3):
             raise ValueError("WebRTC mode must be between 0 and 3")
         self.sample_rate = sample_rate
         self.heartbeat_timeout_seconds = heartbeat_timeout_seconds
+        # A failed ALSA recovery can leave PortAudio open but silent forever.
+        self.audio_timeout_seconds = audio_timeout_seconds
         self.vad_backend = vad_backend
         self.vad_mode = vad_mode
         self.min_rms = min_rms
@@ -156,6 +161,7 @@ class ContinuousListener:
         ) = None
         self._external_feedback: queue.Queue[Callable[[], object]] = queue.Queue()
         self._last_heartbeat = 0.0
+        self._last_audio = 0.0
         self._state: dict[str, Any] = {
             "running": False,
             "phase": "stopped",
@@ -196,6 +202,7 @@ class ContinuousListener:
             self._command_feedback = command_feedback
             self._capture_callback = capture_callback
             self._last_heartbeat = time.monotonic()
+            self._last_audio = time.monotonic()
             self._stop.clear()
             self._thread = threading.Thread(
                 target=self._run,
@@ -260,6 +267,7 @@ class ContinuousListener:
                 status: Any,
             ) -> None:
                 del frames, timing
+                self._last_audio = time.monotonic()
                 if status:
                     with self._lock:
                         self._state["error"] = str(status)
@@ -313,6 +321,22 @@ class ContinuousListener:
                     try:
                         block = audio_queue.get(timeout=0.2)
                     except queue.Empty:
+                        silent_seconds = time.monotonic() - self._last_audio
+                        if (
+                            self.audio_timeout_seconds is not None
+                            and silent_seconds > self.audio_timeout_seconds
+                        ):
+                            message = (
+                                "Microphone delivered no audio for "
+                                f"{silent_seconds:.1f} seconds"
+                            )
+                            # Report before closing the stream; closing a
+                            # failed ALSA stream may itself block.
+                            with self._lock:
+                                self._state.update(
+                                    running=False, phase="stopped", error=message
+                                )
+                            raise RuntimeError(message)
                         continue
                     utterances = segmenter.process(block)
                     level_db = (
