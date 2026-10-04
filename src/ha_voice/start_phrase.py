@@ -55,6 +55,10 @@ class StartPhraseGate:
         self._command_deadline = 0.0
         return "waiting_for_start"
 
+    def reset(self) -> None:
+        """Require a fresh start phrase after a listening-mode change."""
+        self._command_deadline = 0.0
+
     def arm_command_window(self) -> None:
         """Start a fresh full command window, including after feedback playback."""
         self._command_deadline = time.monotonic() + self.command_timeout_seconds

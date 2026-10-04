@@ -202,3 +202,52 @@ def test_feedback_default_still_queues_fifo() -> None:
         assert item is not None
         item.callback()
     assert calls == [0, 1, 2]
+
+
+def test_paused_capture_stops_stream_but_keeps_control_feedback(monkeypatch):
+    streams = []
+    class Stream(_FakeInputStream):
+        def __init__(self, **kwargs):
+            super().__init__(deliver=True, **kwargs)
+            self.paused = False
+            self.transitions = []
+            streams.append(self)
+        def stop(self):
+            self.paused = True
+            self.transitions.append("stop")
+        def start(self):
+            self.paused = False
+            self.transitions.append("start")
+        def _feed(self):
+            block = np.zeros((self.blocksize, 1), dtype=np.float32)
+            while not self._stop.wait(0.005):
+                if not self.paused:
+                    self.callback(block, self.blocksize, None, None)
+    module = types.ModuleType("sounddevice")
+    module.InputStream = Stream
+    monkeypatch.setitem(sys.modules, "sounddevice", module)
+    listener = ContinuousListener(heartbeat_timeout_seconds=None, audio_timeout_seconds=0.05)
+    listener.set_input_paused(True)
+    matched = []
+    listener.start(device=None, matcher=lambda samples: matched.append(samples))
+    try:
+        deadline = time.monotonic() + 1
+        while not listener.snapshot()["capture_paused"] and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert listener.snapshot()["capture_paused"]
+        feedback = threading.Event()
+        listener.enqueue_feedback(feedback.set)
+        assert feedback.wait(1)
+        time.sleep(0.1)  # Pausing must not trigger the missing-microphone watchdog.
+        assert listener.snapshot()["running"]
+        assert listener.snapshot()["phase"] == "paused"
+        assert matched == []
+        listener.set_input_paused(False)
+        deadline = time.monotonic() + 1
+        while listener.snapshot()["capture_paused"] and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert streams[0].transitions == ["stop", "start"]
+        assert not listener.snapshot()["capture_paused"]
+        assert listener.snapshot()["error"] is None
+    finally:
+        listener.stop()

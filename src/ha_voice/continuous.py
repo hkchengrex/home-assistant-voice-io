@@ -168,10 +168,15 @@ class ContinuousListener:
         self._external_feedback: queue.Queue[_QueuedFeedback] = queue.Queue()
         self._feedback_lock = threading.Lock()
         self._active_feedback: _QueuedFeedback | None = None
+        self._input_paused = threading.Event()
+        self._input_epoch = 0
+        self._recognition_context = threading.local()
         self._last_heartbeat = 0.0
         self._last_audio = 0.0
         self._state: dict[str, Any] = {
             "running": False,
+            "input_paused": False,
+            "capture_paused": False,
             "phase": "stopped",
             "level_db": -60.0,
             "event_id": 0,
@@ -231,6 +236,29 @@ class ContinuousListener:
         with self._lock:
             return dict(self._state)
 
+    @property
+    def input_epoch(self) -> int:
+        with self._lock:
+            return self._input_epoch
+
+    @property
+    def recognition_epoch(self) -> int:
+        """Generation of the captured audio being matched on this thread."""
+        return getattr(self._recognition_context, "epoch", self.input_epoch)
+
+    def input_is_current(self, epoch: int) -> bool:
+        with self._lock:
+            return not self._input_paused.is_set() and epoch == self._input_epoch
+
+    def set_input_paused(self, paused: bool) -> None:
+        """Discard input immediately; the worker stops/starts the capture stream."""
+        with self._lock:
+            if paused != self._input_paused.is_set():
+                self._input_epoch += 1
+            self._input_paused.set() if paused else self._input_paused.clear()
+            self._state["input_paused"] = paused
+            self._state["level_db"] = -60.0
+
     def enqueue_feedback(
         self,
         feedback: Callable[[], object],
@@ -278,7 +306,7 @@ class ContinuousListener:
 
     def _idle_phase(self) -> str:
         provider = self._phase_provider
-        return provider() if provider else "listening"
+        return "paused" if self._input_paused.is_set() else (provider() if provider else "listening")
 
     def _new_segmenter(self, *, calibration_ms: int = 0) -> VoiceSegmenter:
         detector = None
@@ -298,7 +326,7 @@ class ContinuousListener:
         try:
             import sounddevice as sd
 
-            audio_queue: queue.Queue[np.ndarray] = queue.Queue(maxsize=500)
+            audio_queue: queue.Queue[tuple[int, np.ndarray]] = queue.Queue(maxsize=500)
             segmenter = self._new_segmenter(calibration_ms=1000)
 
             def callback(
@@ -313,7 +341,10 @@ class ContinuousListener:
                     with self._lock:
                         self._state["error"] = str(status)
                 try:
-                    audio_queue.put_nowait(input_data[:, 0].copy())
+                    with self._lock:
+                        if self._input_paused.is_set():
+                            return
+                        audio_queue.put_nowait((self._input_epoch, input_data[:, 0].copy()))
                 except queue.Full:
                     pass
 
@@ -324,10 +355,30 @@ class ContinuousListener:
                 blocksize=segmenter.block_samples,
                 device=self._device,
                 callback=callback,
-            ):
+            ) as stream:
+                stream_paused = False
+                processed_epoch = self.input_epoch
                 with self._lock:
                     self._state["phase"] = self._idle_phase()
                 while not self._stop.is_set():
+                    paused = self._input_paused.is_set()
+                    epoch = self.input_epoch
+                    if epoch != processed_epoch:
+                        while True:
+                            try:
+                                audio_queue.get_nowait()
+                            except queue.Empty:
+                                break
+                        segmenter = self._new_segmenter()
+                        processed_epoch = epoch
+                    if paused != stream_paused:
+                        stream.stop() if paused else stream.start()
+                        stream_paused = paused
+                        with self._lock:
+                            self._state["capture_paused"] = paused
+                        self._last_audio = time.monotonic()
+                        with self._lock:
+                            self._state["phase"] = self._idle_phase()
                     external_feedback = self._take_external_feedback()
                     if external_feedback is not None:
                         with self._lock:
@@ -359,8 +410,11 @@ class ContinuousListener:
                         )
                     if heartbeat_expired:
                         break
+                    if paused:
+                        self._stop.wait(0.02)
+                        continue
                     try:
-                        block = audio_queue.get(timeout=0.2)
+                        block_epoch, block = audio_queue.get(timeout=0.02)
                     except queue.Empty:
                         silent_seconds = time.monotonic() - self._last_audio
                         if (
@@ -378,6 +432,8 @@ class ContinuousListener:
                                     running=False, phase="stopped", error=message
                                 )
                             raise RuntimeError(message)
+                        continue
+                    if not self.input_is_current(block_epoch):
                         continue
                     utterances = segmenter.process(block)
                     level_db = (
@@ -418,6 +474,7 @@ class ContinuousListener:
                         else:
                             try:
                                 match_started = time.perf_counter()
+                                self._recognition_context.epoch = block_epoch
                                 result = matcher(utterance)
                                 result["match_seconds"] = (
                                     time.perf_counter() - match_started
@@ -430,6 +487,8 @@ class ContinuousListener:
                                     self._state["error"] = str(exc)
                                     self._state["phase"] = self._idle_phase()
                                 continue
+                        if not self.input_is_current(block_epoch):
+                            continue
                         feedback_played = False
                         capture_callback = self._capture_callback
                         if capture_callback is not None:

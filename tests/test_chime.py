@@ -34,3 +34,18 @@ def test_confirmation_chime_uses_output_native_rate(monkeypatch) -> None:
     assert played["device"] == 2
     assert played["blocking"] is True
     assert 0.2 < played["samples"].size / 48000 < 0.3
+
+
+def test_single_and_double_beeps_are_distinct_short_tones():
+    from ha_voice.chime import beep_samples
+    one = beep_samples(1)
+    two = beep_samples(2)
+    assert one.dtype == np.float32
+    assert len(one) == 2160
+    assert len(two) == 6480
+    np.testing.assert_array_equal(two[:2160], one)
+    assert not np.any(two[2160:4320])
+    np.testing.assert_array_equal(two[4320:], one)
+    assert float(np.max(np.abs(two))) <= 0.16
+    with pytest.raises(ValueError):
+        beep_samples(3)

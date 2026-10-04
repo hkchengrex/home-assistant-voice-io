@@ -148,3 +148,11 @@ def test_gate_rejects_implausibly_short_command_audio() -> None:
     assert result["rejection_reason"] == "command_too_short"
     assert result["min_audio_seconds"] == 0.42
     assert gate.phase == "waiting_for_start"
+
+
+def test_reset_requires_a_fresh_start_phrase():
+    gate = _gate()
+    gate.arm_command_window()
+    gate.reset()
+    assert gate.phase == "waiting_for_start"
+    assert gate.process_features(_features(2.0))["kind"] == "ignored"

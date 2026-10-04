@@ -114,6 +114,12 @@ class TriggerCaptureQueue:
     def command_timeout_seconds(self) -> float:
         return self.config.start_phrase.command_timeout_seconds if self.config else 5.0
 
+    def reset(self) -> None:
+        """Close pending recognition and discard transient audio after a pause."""
+        with self._lock:
+            self._close_pending_locked()
+            self._near_misses.clear()
+
     def arm_command_window(self) -> None:
         """Refresh diagnostic timing after acknowledgement playback, like the gate."""
         with self._lock:

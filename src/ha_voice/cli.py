@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 import sys
 import time
-import threading
 
 import numpy as np
 
@@ -27,6 +26,7 @@ from .matcher import (
     load_templates,
 )
 from .responses import VoiceResponsePlayer
+from .voice_mode import VoiceMode
 from .services import SystemdUserServiceManager
 from .start_phrase import StartPhraseGate
 from .voice_generation import (
@@ -146,6 +146,8 @@ def _parser() -> argparse.ArgumentParser:
         default=0,
         help="loopback HTTP port for local welcome events; zero disables it",
     )
+    run.add_argument("--voice-state-file", type=Path, default=None,
+                     help="persist local voice enabled/paused mode across restarts")
     run.add_argument(
         "--direct",
         action="store_true",
@@ -371,12 +373,14 @@ def _run_continuously(
         if config.responses
         else None
     )
+    mode = VoiceMode(listener, responses, output_device=_device(args.output_device),
+                     state_file=args.voice_state_file)
     handler = command_handler or no_action
 
     def play_command(command_name: str) -> None:
         command = config.commands[command_name]
         if responses is not None and command.response:
-            responses.play(command.response)
+            mode.play_spoken(command.response)
     captures_completed = 0
     if args.direct:
         def direct_matcher(samples: np.ndarray) -> dict[str, object]:
@@ -400,7 +404,7 @@ def _run_continuously(
 
         listener.start(
             device=_device(args.input_device),
-            matcher=direct_matcher,
+            matcher=lambda samples: mode.recognize(direct_matcher, samples),
             command_feedback=play_command if responses is not None else None,
         )
         print(
@@ -436,7 +440,7 @@ def _run_continuously(
             command_name = result.get("command")
             if result.get("accepted") and isinstance(command_name, str):
                 try:
-                    outcome = handler(command_name)
+                    outcome = mode.execute(handler, command_name)
                 except RuntimeError as exc:
                     result["action_status"] = "failed"
                     result["action_error"] = str(exc)
@@ -475,14 +479,15 @@ def _run_continuously(
             config=config,
         )
         def start_feedback() -> None:
-            if responses is not None and config.start_phrase.response:
-                responses.play(config.start_phrase.response)
-            gate.arm_command_window()
-            diagnostic_queue.arm_command_window()
+            if mode.play_spoken(config.start_phrase.response):
+                gate.arm_command_window()
+                diagnostic_queue.arm_command_window()
+
+        mode.reset_recognition = lambda: (gate.reset(), diagnostic_queue.reset())
 
         listener.start(
             device=_device(args.input_device),
-            matcher=gate,
+            matcher=lambda samples: mode.recognize(gate, samples),
             phase_provider=lambda: gate.phase,
             start_phrase_feedback=start_feedback,
             command_feedback=play_command if responses is not None else None,
@@ -497,23 +502,16 @@ def _run_continuously(
     last_event_id = 0
     try:
         if args.control_port:
-            callbacks = {}
+            callbacks = mode.callbacks()
+            if callbacks.keys() & config.control_events.keys():
+                raise ValueError("Voice mode control routes are reserved")
             for route, response_group in config.control_events.items():
-                def queue_response(group: str = response_group) -> None:
-                    if responses is None:
-                        raise RuntimeError("No response groups are configured")
-                    cancelled = threading.Event()
-                    listener.enqueue_feedback(
-                        lambda: responses.play(group, cancelled=cancelled),
-                        replace_pending=True,
-                        cancel=cancelled.set,
-                    )
-
-                callbacks[route] = queue_response
+                callbacks[route] = lambda group=response_group: mode.queue_response(group)
             control_server = VoiceControlServer(
                 "127.0.0.1",
                 args.control_port,
                 callbacks,
+                status_callback=mode.status,
             )
             control_server.start()
             print(

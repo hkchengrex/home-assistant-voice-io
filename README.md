@@ -175,3 +175,24 @@ recognition. Ordinary `enqueue_feedback` callers keep FIFO behavior unless they
 opt into `replace_pending` and supply a non-blocking cancellation callback.
 The built-in response player checks cancellation during playback; custom
 three-argument playback hooks retain their existing synchronous contract.
+
+
+### Pause voice input and spoken responses
+
+With `run --control-port PORT`, local POST controls `/voice/toggle`,
+`/voice/pause`, and `/voice/resume` jointly control microphone recognition and
+spoken acknowledgements. Pause interrupts current speech and signals two short
+beeps; resume signals one beep. Existing local response events remain available
+while paused and play one beep instead of speech. External automation actions
+remain the caller's responsibility and do not depend on this mode.
+
+The capture stream stops while paused. Queued microphone audio and partial wake
+sessions are discarded; resuming requires a fresh start phrase. An external
+action already dispatched before the pause is not undone. `/voice/status`
+returns the requested mode and observed capture state as JSON; `/health` keeps
+its existing response. The three mode control routes are reserved.
+
+Use `--voice-state-file PATH` to persist mode across service restarts. A new
+state file defaults to enabled. Restoring a saved state is silent; only explicit
+controls beep. Keep runtime state outside source control. Without this option,
+each process starts enabled. Beeps are synthesized locally and need no assets.

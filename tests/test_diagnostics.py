@@ -427,3 +427,11 @@ def test_near_misses_expire_and_are_capped_per_wake(tmp_path, config, monkeypatc
     # Saved near misses are consumed; a later wake does not save them again.
     queue.capture(_samples(), _start_result())
     assert len([event for event in queue.list_events() if event.get("auto_capture")]) == 3
+
+
+def test_pause_reset_closes_pending_diagnostic(tmp_path, config):
+    queue = TriggerCaptureQueue(tmp_path, sample_rate=16000, config=config)
+    queue.capture(_samples(), _start_result())
+    queue.reset()
+    assert queue.list_events()[0]["command_status"] == "nothing_detected"
+    assert queue.capture(_samples(), _command_result()) is None

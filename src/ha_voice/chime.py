@@ -46,3 +46,21 @@ def play_confirmation_chime(
         device=device,
         blocking=True,
     )
+
+
+def beep_samples(count: int = 1, sample_rate: int = 24_000) -> np.ndarray:
+    """One or two identical short tones, with a clear gap and soft edges."""
+    if count not in (1, 2) or sample_rate <= 0:
+        raise ValueError("Use one or two beeps and a positive sample rate")
+    size = round(sample_rate * 0.09)
+    t = np.arange(size, dtype=np.float32) / sample_rate
+    envelope = np.sin(np.linspace(0, np.pi, size, dtype=np.float32)) ** 2
+    tone = (0.16 * envelope * np.sin(2 * np.pi * 880 * t)).astype(np.float32)
+    gap = np.zeros(round(sample_rate * 0.09), dtype=np.float32)
+    return np.concatenate([tone] if count == 1 else [tone, gap, tone])
+
+
+def play_beeps(count: int, *, device=None, cancelled=None) -> None:
+    from .responses import _sounddevice_playback
+
+    _sounddevice_playback(beep_samples(count), 24_000, device, cancelled=cancelled)
