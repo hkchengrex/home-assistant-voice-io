@@ -4,6 +4,7 @@ import time
 import types
 
 import numpy as np
+import pytest
 
 from ha_voice.continuous import ContinuousListener, VoiceSegmenter
 
@@ -248,6 +249,80 @@ def test_paused_capture_stops_stream_but_keeps_control_feedback(monkeypatch):
             time.sleep(0.01)
         assert streams[0].transitions == ["stop", "start"]
         assert not listener.snapshot()["capture_paused"]
+        assert listener.snapshot()["error"] is None
+    finally:
+        listener.stop()
+
+
+@pytest.mark.parametrize("start_paused", [False, True])
+def test_resume_and_beep_preserve_room_calibration_and_accept_speech(monkeypatch, start_paused):
+    streams = []
+    class Stream:
+        def __init__(self, **kwargs):
+            self.callback = kwargs["callback"]
+            streams.append(self)
+        def __enter__(self): return self
+        def __exit__(self, *_): pass
+        def stop(self): pass
+        def start(self): pass
+    monkeypatch.setitem(sys.modules, "sounddevice", types.SimpleNamespace(InputStream=Stream))
+    listener = ContinuousListener(heartbeat_timeout_seconds=None, audio_timeout_seconds=None,
+                                  min_rms=0.006, noise_multiplier=1.7)
+    processed = []
+    factory = listener._new_segmenter
+    def segmenter(**kwargs):
+        instance = factory(**kwargs)
+        process = instance.process
+        def observe(block):
+            result = process(block)
+            processed.append(instance.noise_rms)
+            return result
+        instance.process = observe
+        return instance
+    listener._new_segmenter = segmenter
+    def wait_for(predicate):
+        deadline = time.monotonic() + 2
+        while not predicate() and time.monotonic() < deadline:
+            time.sleep(0.005)
+        assert predicate(), listener.snapshot()
+    def feed(value, count):
+        target = len(processed) + count
+        for block in _blocks(value, count):
+            streams[0].callback(block[:, None], len(block), None, None)
+        wait_for(lambda: len(processed) >= target)
+    def mode_with_beep(paused):
+        listener.set_input_paused(paused)
+        beep = threading.Event()
+        listener.enqueue_feedback(beep.set)
+        assert beep.wait(1)
+        wait_for(lambda: listener.snapshot()["capture_paused"] == paused)
+        wait_for(lambda: listener.snapshot()["phase"] != "responding")
+    matched, acknowledged = [], []
+    def matcher(samples):
+        matched.append(samples)
+        return {"kind": "command", "accepted": True, "command": "example"}
+    listener.set_input_paused(start_paused)
+    listener.start(device=None, matcher=matcher, phase_provider=lambda: "waiting_for_start",
+                   command_feedback=acknowledged.append)
+    try:
+        wait_for(lambda: bool(streams) and listener.snapshot()["phase"] != "starting")
+        if start_paused:
+            wait_for(lambda: listener.snapshot()["capture_paused"])
+            mode_with_beep(False)
+        feed(0.007, 75)  # Room noise is above min_rms, below calibrated threshold.
+        assert listener.snapshot()["phase"] == "waiting_for_start"
+        assert matched == []
+        mode_with_beep(True)
+        mode_with_beep(False)
+        feed(0.007, 20)
+        assert listener.snapshot()["phase"] == "waiting_for_start"
+        assert matched == []
+        feed(0.05, 30)
+        # Acknowledgement deliberately discards remaining speaker/mic frames.
+        for block in _blocks(0.007, 20):
+            streams[0].callback(block[:, None], len(block), None, None)
+        wait_for(lambda: acknowledged == ["example"])
+        assert len(matched) == 1
         assert listener.snapshot()["error"] is None
     finally:
         listener.stop()

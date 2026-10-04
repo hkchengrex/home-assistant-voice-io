@@ -322,6 +322,15 @@ class ContinuousListener:
             speech_detector=detector,
         )
 
+    def _reset_segmenter(self, previous: VoiceSegmenter) -> VoiceSegmenter:
+        # Discard partial speech and detector history, not the room-noise floor.
+        # A process restored paused may not have calibrated yet; its resume beep
+        # must not erase the remaining startup calibration either.
+        replacement = self._new_segmenter()
+        replacement.noise_rms = previous.noise_rms
+        replacement._calibration_samples_remaining = previous._calibration_samples_remaining
+        return replacement
+
     def _run(self) -> None:
         try:
             import sounddevice as sd
@@ -369,7 +378,7 @@ class ContinuousListener:
                                 audio_queue.get_nowait()
                             except queue.Empty:
                                 break
-                        segmenter = self._new_segmenter()
+                        segmenter = self._reset_segmenter(segmenter)
                         processed_epoch = epoch
                     if paused != stream_paused:
                         stream.stop() if paused else stream.start()
@@ -396,9 +405,7 @@ class ContinuousListener:
                                 audio_queue.get_nowait()
                             except queue.Empty:
                                 break
-                        replacement = self._new_segmenter()
-                        replacement.noise_rms = segmenter.noise_rms
-                        segmenter = replacement
+                        segmenter = self._reset_segmenter(segmenter)
                         with self._lock:
                             self._state["phase"] = self._idle_phase()
                         continue
@@ -530,9 +537,7 @@ class ContinuousListener:
                                     audio_queue.get_nowait()
                                 except queue.Empty:
                                     break
-                            replacement = self._new_segmenter()
-                            replacement.noise_rms = segmenter.noise_rms
-                            segmenter = replacement
+                            segmenter = self._reset_segmenter(segmenter)
                         with self._lock:
                             self._state["event_id"] += 1
                             self._state["last_result"] = result
