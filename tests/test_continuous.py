@@ -169,3 +169,36 @@ def test_listener_keeps_running_while_audio_arrives(monkeypatch) -> None:
 
     assert snapshot["running"] is True
     assert snapshot["error"] is None
+
+
+def test_feedback_replacement_interrupts_active_and_discards_stale_pending() -> None:
+    listener = ContinuousListener()
+    listener._state["running"] = True
+    calls = []
+    active_cancel = threading.Event()
+    stale_cancel = threading.Event()
+    listener.enqueue_feedback(lambda: calls.append("active"), cancel=active_cancel.set)
+    active = listener._take_external_feedback()
+    assert active is not None
+    listener.enqueue_feedback(lambda: calls.append("stale"), cancel=stale_cancel.set)
+    listener.enqueue_feedback(lambda: calls.append("latest"), replace_pending=True)
+    assert active_cancel.is_set()
+    assert stale_cancel.is_set()
+    latest = listener._take_external_feedback()
+    assert latest is not None
+    latest.callback()
+    assert calls == ["latest"]
+    assert listener._take_external_feedback() is None
+
+
+def test_feedback_default_still_queues_fifo() -> None:
+    listener = ContinuousListener()
+    listener._state["running"] = True
+    calls = []
+    for i in range(3):
+        listener.enqueue_feedback(lambda i=i: calls.append(i))
+    for _ in range(3):
+        item = listener._take_external_feedback()
+        assert item is not None
+        item.callback()
+    assert calls == [0, 1, 2]

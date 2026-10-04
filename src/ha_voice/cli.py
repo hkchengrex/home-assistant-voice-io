@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import sys
 import time
+import threading
 
 import numpy as np
 
@@ -501,7 +502,12 @@ def _run_continuously(
                 def queue_response(group: str = response_group) -> None:
                     if responses is None:
                         raise RuntimeError("No response groups are configured")
-                    listener.enqueue_feedback(lambda: responses.play(group))
+                    cancelled = threading.Event()
+                    listener.enqueue_feedback(
+                        lambda: responses.play(group, cancelled=cancelled),
+                        replace_pending=True,
+                        cancel=cancelled.set,
+                    )
 
                 callbacks[route] = queue_response
             control_server = VoiceControlServer(

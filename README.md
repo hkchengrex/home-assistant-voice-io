@@ -165,3 +165,13 @@ fixtures in public tests, and keep real recordings in a private backup.
 ## License
 
 MIT
+
+### Local control response priority
+
+Local control events acknowledge the latest request: a new event cancels an active
+cancellable control response and replaces older pending control responses. The
+continuous listener still discards captured speaker audio before resuming
+recognition. Ordinary `enqueue_feedback` callers keep FIFO behavior unless they
+opt into `replace_pending` and supply a non-blocking cancellation callback.
+The built-in response player checks cancellation during playback; custom
+three-argument playback hooks retain their existing synchronous contract.

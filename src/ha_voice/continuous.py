@@ -120,6 +120,12 @@ class VoiceSegmenter:
         self._utterance = []
 
 
+@dataclass(frozen=True)
+class _QueuedFeedback:
+    callback: Callable[[], object]
+    cancel: Callable[[], None] | None = None
+
+
 class ContinuousListener:
     """Own a sounddevice stream and expose thread-safe recognition state."""
 
@@ -159,7 +165,9 @@ class ContinuousListener:
         self._capture_callback: (
             Callable[[np.ndarray, dict[str, Any]], str | None] | None
         ) = None
-        self._external_feedback: queue.Queue[Callable[[], object]] = queue.Queue()
+        self._external_feedback: queue.Queue[_QueuedFeedback] = queue.Queue()
+        self._feedback_lock = threading.Lock()
+        self._active_feedback: _QueuedFeedback | None = None
         self._last_heartbeat = 0.0
         self._last_audio = 0.0
         self._state: dict[str, Any] = {
@@ -223,12 +231,45 @@ class ContinuousListener:
         with self._lock:
             return dict(self._state)
 
-    def enqueue_feedback(self, feedback: Callable[[], object]) -> None:
-        """Queue playback on the listener thread so captured speaker audio is discarded."""
+    def enqueue_feedback(
+        self,
+        feedback: Callable[[], object],
+        *,
+        replace_pending: bool = False,
+        cancel: Callable[[], None] | None = None,
+    ) -> None:
+        """Queue playback while discarding captured speaker audio afterward.
+
+        Opt-in replacement cancels the active cancellable response and drops
+        older pending responses. Cancellation callbacks must be non-blocking.
+        The default retains the existing FIFO contract.
+        """
         with self._lock:
             if not self._state["running"]:
                 raise RuntimeError("Voice listener is not running")
-        self._external_feedback.put_nowait(feedback)
+        with self._feedback_lock:
+            if replace_pending:
+                if self._active_feedback and self._active_feedback.cancel:
+                    self._active_feedback.cancel()
+                while True:
+                    try:
+                        previous = self._external_feedback.get_nowait()
+                    except queue.Empty:
+                        break
+                    if previous.cancel:
+                        previous.cancel()
+            self._external_feedback.put_nowait(_QueuedFeedback(feedback, cancel))
+
+    def _take_external_feedback(self) -> _QueuedFeedback | None:
+        # Dequeue and mark active under the same lock so a concurrent replacement
+        # cannot miss a response between the pending and playing states.
+        with self._feedback_lock:
+            try:
+                feedback = self._external_feedback.get_nowait()
+            except queue.Empty:
+                return None
+            self._active_feedback = feedback
+            return feedback
 
     def heartbeat(self) -> None:
         with self._lock:
@@ -287,18 +328,18 @@ class ContinuousListener:
                 with self._lock:
                     self._state["phase"] = self._idle_phase()
                 while not self._stop.is_set():
-                    try:
-                        external_feedback = self._external_feedback.get_nowait()
-                    except queue.Empty:
-                        external_feedback = None
+                    external_feedback = self._take_external_feedback()
                     if external_feedback is not None:
                         with self._lock:
                             self._state["phase"] = "responding"
                         try:
-                            external_feedback()
+                            external_feedback.callback()
                         except Exception as exc:
                             with self._lock:
                                 self._state["error"] = f"Response failed: {exc}"
+                        finally:
+                            with self._feedback_lock:
+                                self._active_feedback = None
                         while True:
                             try:
                                 audio_queue.get_nowait()
